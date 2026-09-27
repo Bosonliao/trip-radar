@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='ysm-v2.5.0';
+const VERSION='ysm-v3.0.0';
 const CACHE_STATIC='static-'+VERSION;
 const CACHE_DATA='data-'+VERSION;
 const PRECACHE=['./','./yangmingshan-jinshan-radar.html','./data/trip/ysm_spots.json','./data/trip/ysm_food.json'];
