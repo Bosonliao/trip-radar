@@ -31,6 +31,11 @@ header h1{font-size:17px;font-weight:800;}
 .chip{font-size:13px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
 .chip.fee{background:#fff3e2;color:#a05a1e;}
 .sec-title{margin:16px 14px 7px;font-size:15px;font-weight:800;}
+.search-row{display:flex;gap:8px;margin:8px 12px 0;}
+.search-box{flex:1;border:1.5px solid var(--teal);border-radius:10px;padding:11px 13px;font-size:16px;background:#fff;color:inherit;min-height:44px;}
+.fav-toggle{border:1.5px solid var(--coral);color:var(--coral);background:#fff;border-radius:10px;padding:0 14px;font-size:14px;font-weight:700;min-height:44px;}
+.fav-toggle.on{background:var(--coral);color:#fff;}
+.fav-star{cursor:pointer;font-size:18px;}
 .item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
 .item:last-child{border-bottom:0;}
 .item .nm{font-weight:700;font-size:14.5px;}
@@ -71,6 +76,7 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
   </div>
 </div>
 <div class="sec-title">🎯 附近景點（<span id="spotScope"></span>）</div>
+<div class="search-row"><input id="q" class="search-box" type="search" placeholder="🔍 搜尋景點…" oninput="render()"><button id="favBtn" class="fav-toggle" onclick="toggleFavMode()" aria-pressed="false">⭐ 最愛</button></div>
 <div class="wrap"><div id="nearList"></div></div>
 <div class="sec-title">🍽️ 附近美食（<span id="foodScope"></span>）</div>
 <div class="wrap"><div id="foodList"></div></div>
@@ -81,7 +87,9 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 <footer>資料源：台灣旅遊資料庫＋美食雷達｜novamind.tw V1.5</footer>
 <script>
 let SPOTS=[],FOOD=[];
-let cur=null,watch=null,gpsOn=false,inZone=null;
+
+let cur=null,watch=null,gpsOn=false,inZone=null,favMode=false;
+const favs=new Set(JSON.parse(localStorage.getItem("ysmFavs")||"[]"));
 const visited=new Set(JSON.parse(localStorage.getItem('ysmVisited')||'[]'));
 const DEF={lat:25.1812,lng:121.5686};
 const R_IN=600,R_OUT=800;
@@ -119,6 +127,8 @@ function locate(){
     render();
   },e=>{st.textContent=e.code===1?'🚫 位置權限被拒——設定→Safari→位置→允許後重試。':'❌ '+e.message;},{enableHighAccuracy:true,maximumAge:5000,timeout:25000});
 }
+function toggleFav(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem("ysmFavs",JSON.stringify(Array.from(favs)));render();}
+function toggleFavMode(){favMode=!favMode;const b=document.getElementById("favToggle")||document.getElementById("fav-toggle");}
 function toggleIntro(){
   const el=$('aIntro');
   const clamped=el.classList.contains('clamp');
@@ -181,8 +191,12 @@ function render(){
     $('aMap').href=inZone.web||('https://www.google.com/maps/search/?api=1&query='+inZone.lat+','+inZone.lng);
     $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+inZone.lat+','+inZone.lng+',16z';
   }else{ab.style.display='none';if(document.getElementById('miniMap'))document.getElementById('miniMap').style.display='none';}
-  $('nearList').innerHTML=box.slice(0,10).map(s=>
-  '<div class="item"><div><div class="nm">'+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
+  const __q=($('q')||{}).value||'';
+  let shown=box;
+  if(favMode)shown=shown.filter(s=>favs.has(s.name));
+  if(__q)shown=shown.filter(s=>((s.name||'')+(s.area||'')).indexOf(__q)>=0);
+  $('nearList').innerHTML=shown.slice(0,10).map(s=>
+  '<div class="item"><div><div class="nm"><span class="fav-star" onclick="event.stopPropagation();toggleFav(\''+esc(s.name).replace(/'/g,"\\'")+'\')">'+(favs.has(s.name)?'⭐':'☆')+'</span> '+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div></div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
   '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(s.k<1?'close':'')+'">'+fmtDist(s.k)+'</span>'+
   '<a class="map-btn" target="_blank" href="'+gmapLink(s.lat,s.lng)+'">帶我去</a></div></div>').join('');
   const fw=FOOD.map(f=>Object.assign({},f,{k:haversine(cx,cy,f.lat,f.lng)})).sort((a,b)=>a.k-b.k);
