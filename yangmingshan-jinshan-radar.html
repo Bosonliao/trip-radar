@@ -15,6 +15,7 @@ header h1{font-size:17px;font-weight:800;}
 .gps-box{margin:10px 12px 0;background:#fff;border-radius:14px;padding:13px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
 .btn{border:0;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:800;cursor:pointer;}
 .btn-main{background:var(--coral);color:#fff;width:100%;}
+.hint{margin-top:7px;font-size:13.5px;color:#7a8b92;}
 .gps-status{margin-top:8px;font-size:14px;color:#5a6b73;}
 .lb-green{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;background:#d8f3e8;color:#1a7f5c;}
 .arrive{margin:10px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.2);background:#fff;border:2px solid var(--coral);}
@@ -27,6 +28,7 @@ header h1{font-size:17px;font-weight:800;}
 .intro{font-size:13.5px;color:#33454e;}
 .intro.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
 .more{color:var(--teal);font-weight:700;font-size:12.5px;cursor:pointer;margin-top:5px;display:inline-block;}
+.report-btn{margin-top:8px;width:100%;border:1.5px dashed #b7c7c1;background:transparent;color:#7a8b92;border-radius:10px;padding:10px;font-size:13px;font-weight:700;min-height:44px;}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
 .chip{font-size:13px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
 .chip.fee{background:#fff3e2;color:#a05a1e;}
@@ -62,6 +64,7 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 </header>
 <div class="gps-box">
   <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動出現詳細介紹）</button>
+  <div class="hint" id="gpsHint">📱 按下後會跳詢問 → 請選「允許」。沒跳出就再按一次。</div>
   <div class="gps-status" id="st" role="status" aria-live="polite" aria-atomic="true">未開啟 GPS——目前以【二子坪】為中心。</div>
 </div>
 <div class="arrive" id="arriveBox" style="display:none;">
@@ -73,6 +76,7 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
     <button id="aMore" class="more" type="button" aria-expanded="false" aria-controls="aIntro" onclick="toggleIntro()">⋯ 展開全文</button>
     <div class="chips" id="aChips"></div>
     <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
+    <button class="report-btn" id="reportBtn" onclick="reportSpot()">⚠️ 資訊有誤？回報</button>
   </div>
 </div>
 <div class="sec-title">🎯 附近景點（<span id="spotScope"></span>）</div>
@@ -129,6 +133,7 @@ function locate(){
 }
 function toggleFav(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem("ysmFavs",JSON.stringify(Array.from(favs)));render();}
 function toggleFavMode(){favMode=!favMode;const b=document.getElementById("favToggle")||document.getElementById("fav-toggle");}
+function reportSpot(){const nm=inZone?inZone.name:"";const u="https://docs.google.com/forms/d/e/1FAIpQLSd_example/view?entry.0="+encodeURIComponent(nm);window.open("mailto:nova.ai0525@gmail.com?subject="+encodeURIComponent("旅遊雷達資訊回報："+nm)+"&body="+encodeURIComponent("景點："+nm+"\n問題描述："),"_blank");}
 function toggleIntro(){
   const el=$('aIntro');
   const clamped=el.classList.contains('clamp');
