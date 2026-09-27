@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1d3557">
-<title>陽明山金山 GPS 旅遊雷達 V2.1｜地圖模式</title>
+<title>陽明山金山 GPS 旅遊雷達 V2.2｜地圖模式</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <style>
 :root{
@@ -121,6 +121,7 @@ footer{display:none;}
         <button id="aMore" class="more" type="button" aria-expanded="false" aria-controls="aIntro" onclick="toggleIntro()">⋯ 展開全文</button>
         <div class="chips" id="aChips"></div>
         <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
+        <button class="report-btn" id="unpinBtn" onclick="unpin()" style="display:none;order:2;">📍 回到自動追蹤模式</button>
         <button class="report-btn" onclick="reportSpot()">⚠️ 資訊有誤？回報</button>
       </div>
     </div>
@@ -172,17 +173,17 @@ function initMap(){
   SPOTS.forEach(s=>{
     const m=L.circleMarker([s.lat,s.lng],{radius:7,color:'#2A9D8F',weight:2,fillColor:'#2A9D8F',fillOpacity:.85}).addTo(map);
     m.on('click',()=>{
-      curSpot=s;
+      curSpot=s;userPinned=s;
       showPreview(s);
       setSheet('mid');
       map.setView([s.lat,s.lng],15);
     });
   });
 }
-let curSpot=null;
+let curSpot=null,userPinned=null;
 function showPreview(s){
   const box=$('arriveBox');box.style.display='block';
-  $('aTag').textContent='📍 景點預覽｜'+fmtDist(haversine(cLat(),cLng(),s.lat,s.lng));
+  $('aTag').textContent=(userPinned===s?'👆 你選的景點｜':'📍 景點預覽｜')+fmtDist(haversine(cLat(),cLng(),s.lat,s.lng));
   $('aNm').textContent=s.name;
   $('aD').textContent=(s.area||'')+'｜'+(s.rating?'★'+s.rating:'');
   const img=$('aImg');
@@ -198,6 +199,7 @@ function showPreview(s){
   $('aNav').href=gmapLink(s.lat,s.lng);
   $('aMap').href=s.web||('https://www.google.com/maps/search/?api=1&query='+s.lat+','+s.lng);
   $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+s.lat+','+s.lng+',16z';
+  const ub=$('unpinBtn');if(ub)ub.style.display=(userPinned===s)?'block':'none';
 }
 function cLat(){return cur?cur.latitude:DEF.lat}
 function cLng(){return cur?cur.longitude:DEF.lng}
@@ -234,12 +236,15 @@ function render(){
     if(navigator.vibrate)navigator.vibrate([80,60,80]);
   }
   const ab=$('arriveBox');
-  if(gpsOn&&inZone){
+  if(gpsOn&&userPinned){
+    // 手動點選優先：不蓋掉使用者的選擇
+    ab.style.display='block';
+  }else if(gpsOn&&inZone){
     ab.style.display='block';
     showPreview(inZone);
     $('aTag').textContent='🎉 你現在在這附近｜'+fmtDist(haversine(cx,cy,inZone.lat,inZone.lng));
     if(navigator.vibrate)navigator.vibrate([80,60,80]);
-  }else if(!gpsOn){ab.style.display='none';}
+  }else if(!gpsOn&&!userPinned){ab.style.display='none';}
   // 清單（含搜尋/最愛過濾）
   const qv=($('q')||{}).value||'';
   let shown=box;
@@ -260,6 +265,7 @@ function render(){
   // 抵達時自動 Mid
   if(gpsOn&&inZone&&sheetState==='peek')setSheet('mid');
 }
+function unpin(){userPinned=null;curSpot=null;if(gpsOn)render();else{$('arriveBox').style.display='none';}}
 function toggleFavByName(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem('ysmFavs',JSON.stringify(Array.from(favs)));render();}
 function toggleFavMode(){favMode=!favMode;$('favModeBtn').classList.toggle('on',favMode);render();}
 function toggleIntro(){const el=$('aIntro');const c=el.classList.contains('clamp');el.classList.toggle('clamp',!c);$('aMore').textContent=c?'⋯ 展開全文':'收起 ▲';$('aMore').setAttribute('aria-expanded',c?'true':'false');}
