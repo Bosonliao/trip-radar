@@ -15,12 +15,12 @@ header h1{font-size:17px;font-weight:800;}
 .gps-box{margin:10px 12px 0;background:#fff;border-radius:14px;padding:13px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
 .btn{border:0;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:800;cursor:pointer;}
 .btn-main{background:var(--coral);color:#fff;width:100%;}
-.gps-status{margin-top:8px;font-size:12.6px;color:#5a6b73;}
+.gps-status{margin-top:8px;font-size:14px;color:#5a6b73;}
 .lb-green{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;background:#d8f3e8;color:#1a7f5c;}
 .arrive{margin:10px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.2);background:#fff;border:2px solid var(--coral);}
 .arrive-img{width:100%;height:150px;aspect-ratio:5/2;background:#eef2f2;object-fit:cover;display:block;}
 .arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:11px 16px 9px;}
-.arrive-head .t{font-size:11.5px;font-weight:700;opacity:.92;}
+.arrive-head .t{font-size:12.5px;font-weight:700;opacity:.92;}
 .arrive-head .nm{font-size:19px;font-weight:800;margin-top:2px;}
 .arrive-head .d{font-size:11px;opacity:.92;margin-top:2px;}
 .arrive-body{padding:11px 16px 13px;}
@@ -28,21 +28,23 @@ header h1{font-size:17px;font-weight:800;}
 .intro.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
 .more{color:var(--teal);font-weight:700;font-size:12.5px;cursor:pointer;margin-top:5px;display:inline-block;}
 .chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
-.chip{font-size:11px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
+.chip{font-size:13px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
 .chip.fee{background:#fff3e2;color:#a05a1e;}
 .sec-title{margin:16px 14px 7px;font-size:15px;font-weight:800;}
 .item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
 .item:last-child{border-bottom:0;}
 .item .nm{font-weight:700;font-size:14.5px;}
-.item .meta{font-size:11.6px;color:#7a8b92;margin-top:2px;}
+.item .meta{font-size:13.5px;color:#7a8b92;margin-top:2px;}
 .dist{font-weight:800;color:var(--teal);font-size:13px;white-space:nowrap;}
 .dist.close{color:var(--coral);}
-.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:700;text-decoration:none;}
+.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:10px;padding:10px 13px;font-size:14px;font-weight:700;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;}
 .wrap{margin:7px 12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(38,70,83,.08);}
 .info-card{margin:8px 12px;background:#fff;border-radius:14px;padding:12px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
 .info-card h3{font-size:14px;font-weight:800;margin-bottom:5px;}
 .info-card p{font-size:12.4px;color:#44565e;}
 footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
+@media(prefers-color-scheme:dark){:root{--sand:#16211f;--navy:#d8e8e2;--teal:#3aa08f;--coral:#e8835f;}body{background:#16211f;color:#d8e8e5;}.item,.info-card,.gps-box,.arrive,.wrap{background:#1e2b28;box-shadow:0 2px 10px rgba(0,0,0,.4);color:#d8e8e5;}.item{border-bottom:1px solid #2a3835;}.dist{color:#5cc0ab;}.map-btn{background:#243531;color:#7fd4c4;border-color:#3a8a7c;}.tips{background:#243530;color:#bcd6cd;}.chip{background:#243530;color:#9fcfc2;}.chip.fee{background:#3a2d1e;color:#e8b878;}.gps-status{color:#a8bfb8;}.item .meta{color:#93aaa2;}header{background:linear-gradient(135deg,#0d1a17 0%,#20574d 100%);}}
+
 </style>
 </head>
 <body>
@@ -52,14 +54,14 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 </header>
 <div class="gps-box">
   <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動出現詳細介紹）</button>
-  <div class="gps-status" id="st">未開啟 GPS——目前以【二子坪】為中心。</div>
+  <div class="gps-status" id="st" role="status" aria-live="polite" aria-atomic="true">未開啟 GPS——目前以【二子坪】為中心。</div>
 </div>
 <div class="arrive" id="arriveBox" style="display:none;">
   <img class="arrive-img" id="aImg" alt="" width="750" height="300" decoding="async" loading="eager">
   <div class="arrive-head"><div class="t" id="aTag"></div><div class="nm" id="aNm"></div><div class="d" id="aD"></div></div>
   <div class="arrive-body">
     <div class="intro" id="aIntro"></div>
-    <div class="more" id="aMore" onclick="toggleIntro()">⋯ 展開全文</div>
+    <button id="aMore" class="more" type="button" aria-expanded="false" aria-controls="aIntro" onclick="toggleIntro()">⋯ 展開全文</button>
     <div class="chips" id="aChips"></div>
     <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
   </div>
@@ -84,9 +86,10 @@ function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)*
 function fmtDist(k){return k<1?Math.round(k*1000)+' m':k.toFixed(1)+' km';}
 function gmapLink(lat,lng,mode){return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+(mode||'walking');}
 function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
+async function fRetry(u,n){for(let i=0;i<2;i++){try{return await fetch(u)}catch(e){await new Promise(r=>setTimeout(r,800));}}return fetch(u);}
 async function boot(){
   try{
-    const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json?v=4'),fetch('data/trip/ysm_food.json?v=4')]);
+    const [a,b]=await Promise.all([fRetry('data/trip/ysm_spots.json?v=5'),fRetry('data/trip/ysm_food.json?v=5')]);
     SPOTS=await a.json();FOOD=await b.json();
     $('st').textContent=$('st').textContent;
     render();
@@ -142,7 +145,7 @@ function render(){
     $('aNm').textContent=inZone.name;
     $('aD').textContent=(inZone.area||'')+'｜'+(inZone.rating?'★'+inZone.rating:'');
     const img=$('aImg');
-    if(inZone.image){img.src=inZone.image;img.style.display='block';}else{img.style.display='none';}
+    if(inZone.image){img.src=inZone.image;img.alt=inZone.name+' 照片';img.style.display='block';}else{img.style.display='none';}
     const introEl=$('aIntro');
     const fullText=esc(inZone.desc)||'（暫無介紹——點地圖看更多）';
     introEl.innerHTML=fullText;
