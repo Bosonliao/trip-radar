@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>陽明山金山一日 GPS 雷達 V1.4</title>
+<title>陽明山金山一日 GPS 雷達 V1.5</title>
 <style>
 :root{--teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -46,6 +46,9 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 @media(prefers-color-scheme:dark){:root{--sand:#16211f;--navy:#d8e8e2;--teal:#3aa08f;--coral:#e8835f;}body{background:#16211f;color:#d8e8e5;}.item,.info-card,.gps-box,.arrive,.wrap{background:#1e2b28;box-shadow:0 2px 10px rgba(0,0,0,.4);color:#d8e8e5;}.item{border-bottom:1px solid #2a3835;}.dist{color:#5cc0ab;}.map-btn{background:#243531;color:#7fd4c4;border-color:#3a8a7c;}.tips{background:#243530;color:#bcd6cd;}.chip{background:#243530;color:#9fcfc2;}.chip.fee{background:#3a2d1e;color:#e8b878;}.gps-status{color:#a8bfb8;}.item .meta{color:#93aaa2;}header{background:linear-gradient(135deg,#0d1a17 0%,#20574d 100%);}}
 
 </style>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>.mini-map{width:100%;height:170px;border-radius:12px;margin-bottom:9px;background:#eef2f2;}</style>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
 </head>
 <body>
 <header>
@@ -58,6 +61,7 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 </div>
 <div class="arrive" id="arriveBox" style="display:none;">
   <img class="arrive-img" id="aImg" alt="" width="750" height="300" decoding="async" loading="eager">
+  <div class="mini-map" id="miniMap" style="display:none;"></div>
   <div class="arrive-head"><div class="t" id="aTag"></div><div class="nm" id="aNm"></div><div class="d" id="aD"></div></div>
   <div class="arrive-body">
     <div class="intro" id="aIntro"></div>
@@ -74,7 +78,7 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 <p>・陽明山海拔高、天氣多變——帶件外套，二子坪霧來得快。</p>
 <p>・今日路線：二子坪→金山老街（鴨肉必吃）→獅頭山燭臺雙嶼→【回程】淡水老街→淡海大橋→楊梅。</p>
 <p>・觀光熱線 <b>0800-011-765</b>｜緊急：報警 112／救護 119。</p></div>
-<footer>資料源：台灣旅遊資料庫＋美食雷達｜novamind.tw V1.4</footer>
+<footer>資料源：台灣旅遊資料庫＋美食雷達｜novamind.tw V1.5</footer>
 <script>
 let SPOTS=[],FOOD=[];
 let cur=null,watch=null,gpsOn=false,inZone=null;
@@ -155,10 +159,28 @@ function render(){
     if(inZone.fee)chips+='<span class="chip fee">🎫 '+esc(inZone.fee)+'</span>';
     (inZone.tags||[]).slice(0,4).forEach(t=>{chips+='<span class="chip">'+esc(t)+'</span>';});
     $('aChips').innerHTML=chips;
+    // Leaflet 迷你地圖
+    try{
+      if(window.L){
+        if(!window._map){
+          window._map=L.map('miniMap',{zoomControl:false,attributionControl:false});
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(window._map);
+          window._marker=L.marker([inZone.lat,inZone.lng]).addTo(window._map);
+        }else{
+          window._map.setView([inZone.lat,inZone.lng],16);
+          if(window._marker)window._map.removeLayer(window._marker);
+          window._marker=L.marker([inZone.lat,inZone.lng]).addTo(window._map);
+        }
+        window._map.invalidateSize();
+        window._map.setView([inZone.lat,inZone.lng],16);
+        document.getElementById('miniMap').style.display='block';
+      }
+    }catch(e){}
+    if(navigator.vibrate)navigator.vibrate([80,60,80]);
     $('aNav').href=gmapLink(inZone.lat,inZone.lng);
     $('aMap').href=inZone.web||('https://www.google.com/maps/search/?api=1&query='+inZone.lat+','+inZone.lng);
     $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+inZone.lat+','+inZone.lng+',16z';
-  }else{ab.style.display='none';}
+  }else{ab.style.display='none';if(document.getElementById('miniMap'))document.getElementById('miniMap').style.display='none';}
   $('nearList').innerHTML=box.slice(0,10).map(s=>
   '<div class="item"><div><div class="nm">'+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
   '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(s.k<1?'close':'')+'">'+fmtDist(s.k)+'</span>'+
