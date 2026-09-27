@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='ysm-v3.1.1';
+const VERSION='ysm-v3.1.2';
 const CACHE_STATIC='static-'+VERSION;
 const CACHE_DATA='data-'+VERSION;
 const PRECACHE=['./','./yangmingshan-jinshan-radar.html','./data/trip/ysm_spots.json','./data/trip/ysm_food.json'];
@@ -16,9 +16,8 @@ self.addEventListener('fetch',e=>{
   if(u.includes('/data/trip/')){
     e.respondWith(caches.open(CACHE_DATA).then(async c=>{
       const hit=await c.match(e.request);
-      const net=fetch(e.request).then(resp=>{if(resp.ok)c.put(e.request,resp.clone());return resp;}).catch(()=>hit);
-      return hit||net(resp);
-      function net(p){return p;}
+      const netp=fetch(e.request).then(resp=>{if(resp.ok)c.put(e.request,resp.clone());return resp;}).catch(()=>hit);
+      return hit||netp;
     }).catch(()=>fetch(e.request)));
     return;
   }
