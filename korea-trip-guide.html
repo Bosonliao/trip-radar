@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>首爾清州 GPS 領隊｜行程隨身小助理 V1.1</title>
+<style>
+:root{--teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;--yellow:#E9C46A;--white:#fff;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--sand);color:var(--navy);line-height:1.5;}
+header{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);color:#fff;padding:18px 16px 14px;}
+header h1{font-size:20px;font-weight:700;}
+header .sub{font-size:12.5px;opacity:.85;margin-top:3px;}
+.gps-box{margin:12px 12px 0;background:var(--white);border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
+.btn{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer;}
+.btn-main{background:var(--coral);color:#fff;width:100%;}
+.btn-main:active{opacity:.85;}
+.gps-status{margin-top:10px;font-size:13px;color:#5a6b73;}
+.locate-badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;}
+.lb-green{background:#d8f3e8;color:#1a7f5c;}
+.arrive{margin:12px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.18);background:var(--white);border:2px solid var(--coral);}
+.arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:13px 16px 11px;}
+.arrive-head .t{font-size:12.5px;font-weight:700;opacity:.92;}
+.arrive-head .nm{font-size:21px;font-weight:800;margin-top:2px;}
+.arrive-head .d{font-size:12px;opacity:.9;margin-top:2px;}
+.arrive-body{padding:12px 16px 14px;}
+.arrive-body .intro{font-size:13.8px;color:#33454e;}
+.arrive-body .tips{margin-top:9px;background:var(--sand);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#44565e;}
+.arrive-acts{display:flex;gap:8px;margin-top:11px;}
+.arrive-acts a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;border-radius:9px;padding:9px 4px;}
+.a-map{background:var(--teal);color:#fff;}
+.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
+.a-food{background:#fff;color:var(--coral);border:1.5px solid var(--coral);}
+.progress-row{display:flex;gap:6px;margin:0 12px 6px;overflow-x:auto;}
+.prog-chip{font-size:11.5px;border-radius:99px;padding:4px 10px;background:#e4ede9;color:#6b7f78;font-weight:700;white-space:nowrap;}
+.prog-chip.done{background:var(--teal);color:#fff;}
+.sec-title{margin:18px 14px 8px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;}
+.near-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
+.near-item:last-child{border-bottom:0;}
+.near-item .nm{font-weight:700;font-size:15px;}
+.near-item .meta{font-size:12px;color:#7a8b92;margin-top:2px;}
+.dist{font-weight:800;color:var(--teal);font-size:14px;white-space:nowrap;}
+.dist.close{color:var(--coral);}
+.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;text-decoration:none;}
+.near-wrap{margin:8px 12px;background:var(--white);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(38,70,83,.08);}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 12px;}
+.q-card{background:var(--white);border-radius:12px;padding:11px 6px;text-align:center;text-decoration:none;color:var(--navy);box-shadow:0 2px 8px rgba(38,70,83,.07);cursor:pointer;}
+.q-card .ic{font-size:22px;}
+.q-card .tt{font-size:12px;font-weight:700;margin-top:4px;}
+.day-tabs{display:flex;gap:6px;margin:6px 12px 0;overflow-x:auto;padding-bottom:6px;}
+.day-tab{border:1.5px solid var(--teal);color:var(--teal);background:#fff;border-radius:99px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.day-tab.on{background:var(--teal);color:#fff;}
+.spot{margin:8px 12px;background:var(--white);border-radius:14px;padding:13px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
+.spot-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+.spot-head .nm{font-weight:800;font-size:15.5px;}
+.spot-head .tag{font-size:11px;background:var(--sand);color:var(--teal);border-radius:99px;padding:2px 9px;font-weight:700;white-space:nowrap;}
+.tag.drama{background:#f3e8fd;color:#8e44ad;}
+.spot-desc{font-size:12.8px;color:#5a6b73;margin-top:6px;display:none;}
+.spot.open .spot-desc{display:block;}
+.spot-actions{display:flex;gap:8px;margin-top:9px;}
+.spot-actions a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;border-radius:9px;padding:8px 6px;}
+.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
+.info-card{margin:8px 12px;background:var(--white);border-radius:14px;padding:13px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
+.info-card h3{font-size:14.5px;font-weight:800;margin-bottom:6px;display:flex;gap:6px;align-items:center;}
+.info-card p{font-size:12.8px;color:#44565e;}
+footer{text-align:center;font-size:11.5px;color:#8aa0a8;padding:18px 0 26px;}
+</style>
+</head>
+<body>
+<header>
+  <h1>🇰🇷 首爾清州 5 日｜GPS 領隊小助理</h1>
+  <div class="sub">超值玩美首爾清州５日〈彩妝一站〉· 出發 11/10.17.24 · 跟團開定位，一到景點自動出現介紹</div>
+</header>
+
+<div class="gps-box">
+  <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動帶出介紹）</button>
+  <div class="gps-status" id="gpsStatus">還沒定位——點上面的按鈕，允許位置權限後，每到一個景點就會自動出現它的介紹。</div>
+</div>
+
+<div class="arrive" id="arriveBox" style="display:none;">
+  <div class="arrive-head">
+    <div class="t" id="arriveTag">🎉 抵達景點</div>
+    <div class="nm" id="arriveNm"></div>
+    <div class="d" id="arriveDist"></div>
+  </div>
+  <div class="arrive-body">
+    <div class="intro" id="arriveIntro"></div>
+    <div class="tips" id="arriveTips"></div>
+    <div class="arrive-acts">
+      <a class="a-nav" id="arriveNav" target="_blank">🚶 帶我去</a>
+      <a class="a-map" target="_blank" id="arriveMap">🗺️ 地圖開啟</a>
+      <a class="a-food" onclick="nearSearch('韓式餐廳')">🍽️ 附近美食</a>
+    </div>
+  </div>
+</div>
+
+<div id="progRow" style="margin:12px 12px 0;display:none;"></div>
+
+<div class="quick-grid">
+  <a class="q-card" onclick="nearSearch('地鐵站')"><div class="ic">🚇</div><div class="tt">附近地鐵站</div></a>
+  <a class="q-card" onclick="nearSearch('換錢所')"><div class="ic">💱</div><div class="tt">附近換錢所</div></a>
+  <a class="q-card" onclick="nearSearch('便利商店 convenience store')"><div class="ic">🏪</div><div class="tt">便利商店</div></a>
+  <a class="q-card" onclick="nearSearch('藥妝店')"><div class="ic">💊</div><div class="tt">藥妝店</div></a>
+  <a class="q-card" onclick="nearSearch('韓式餐廳')"><div class="ic">🍲</div><div class="tt">附近美食</div></a>
+  <a class="q-card" onclick="nearSearch('咖啡廳')"><div class="ic">☕</div><div class="tt">咖啡廳</div></a>
+</div>
+
+<div class="info-card">
+  <h3>🚄 交通速查</h3>
+  <p>・<b>T-money 卡</b>：便利店買卡儲值，地鐵/公車/便利店通用（地鐵基本 ₩1,400）。</p>
+  <p>・<b>機場快線 AREX</b>：仁川機場 ⇄ 首爾站直達 43 分（₩9,500）；清州機場無地鐵，本行程多為遊覽車接送。</p>
+  <p>・<b>導航 App</b>：韓國境內用 <b>Naver Map</b> 或 <b>KakaoMap</b>（比 Google 準）。</p>
+  <p>・<b>Kakao T</b>：叫車 App（計程車基本 ₩4,800 起）。</p>
+</div>
+
+<div class="info-card">
+  <h3>💡 旅行必備小卡</h3>
+  <p>・<b>觀光熱線 1330</b>：中文旅遊諮詢｜報警 <b>112</b>／救護火警 <b>119</b>。</p>
+  <p>・<b>退稅</b>：單店滿 ₩15,000 可退（明洞/百貨退稅機或機場）。</p>
+  <p>・<b>插頭</b>：220V 圓孔雙腳（C 型），需轉接頭。</p>
+  <p>・<b>駐韓台北代表部</b>：+82-2-3783-7900（護照遺失／急難救助）。</p>
+</div>
+
+<div class="day-tabs" id="dayTabs"></div>
+<div id="spotList"></div>
+
+<footer>行程資料：易遊網 CJJ0526CA 超值玩美首爾清州５日｜novamind.tw V1.1<br>座標來源 OpenStreetMap・導航以 Naver/Google 為準</footer>
+
+<script>
+const SPOTS=[
+ {d:1,nm:'清州國際機場',lat:36.715556,lng:127.497464,ic:'✈️',dr:'落地第一站',dn:'忠清北道清州市',intro:'桃園⇄清州，易斯達航空（託運 20kg＋手提 10kg，機上無餐食）。回程 Day5 從這飛回台灣。',tips:'回程預留 2 小時：退稅＋安檢＋免稅店。'},
+ {d:1,nm:'壽岩谷壁畫村',lat:36.646375,lng:127.494495,ic:'🎨',dr:'drama',dn:'《麵包王金卓求》拍攝地',intro:'韓戰後難民聚落的「月亮山村」，2007 年公共藝術計畫後變身壁畫村，巷弄處處是彩繪，山頂還有可以俯瞰清州景色的屋頂咖啡廳。',tips:'上坡路段穿好走的鞋；傍晚夕陽時分拍照最美。'},
+ {d:1,nm:'清州中央公園',lat:36.631602,lng:127.486976,ic:'🌳',dr:'drama',dn:'《黑暗榮耀》圍棋場景',intro:'劇中同珢向如炡學圍棋的公園，也是電影《20世紀少女》取景地。清州市中心的市民休憩空間，秋冬楓葉銀杏超美。',tips:'公園旁就是清州鬧區，散步後可接著逛。'},
+ {d:1,nm:'城安街商圈',lat:36.634868,lng:127.492218,ic:'🛍️',dr:'drama',dn:'《阿爾罕布拉宮的回憶》拍攝地',intro:'有清州明洞之稱的城安街：步行街＋地下商場＋樂天百貨＋300 多家潮流店，緊鄰傳統市場「六街綜合市場」。',tips:'晚上的城安街很有氣氛——晚上的餐食自理就在這裡解決。'},
+ {d:2,nm:'水原華城',lat:37.284017,lng:127.015978,ic:'🏯',dr:'UNESCO 世界遺產',dn:'華城行宮・長安門一帶',intro:'朝鮮後期代表性城廓：全長 5,520 公尺城牆，八達門、長安門、蒼龍門、華西門四座城門＋暗門水門等防守設施，丁若鏞科學築城，1997 年列入世界遺產。',tips:'城牆走一段就很有感覺；秋季有華城文化節。'},
+ {d:2,nm:'八達門傳統市場',lat:37.277936,lng:127.017798,ic:'🏮',dr:'在地市場',dn:'水原・小東大門',intro:'乾淨整潔的傳統市場，購物＋道地小吃一次滿足，就在八達門旁。',tips:'水原名物：排骨（갈비）街就在附近，午晚餐好選擇。'},
+ {d:2,nm:'STARFIELD水原＋星空圖書館2.0',lat:37.287445,lng:126.991575,ic:'🌌',dr:'爆紅打卡',dn:'水原長安區',intro:'位於 Starfield 購物中心 4~7 樓，挑高四層樓＋宇宙星球裝置，無邊界三維空間設計，韓國最新打卡景點。',tips:'中午前人少好拍；商場內餐廳選擇很多。'},
+ {d:2,nm:'義王樂天Time Villas Outlet',lat:37.375617,lng:127.009554,ic:'🛍️',dr:'夢幻玻璃屋',dn:'義王市鶴儀洞・白雲湖畔',intro:'2021 年開幕的樂天精品 Outlet「時光別墅」，以大自然中的全家戶外購物為概念，是樂天第 6 家精品 outlet。',tips:'名牌＋運動品牌折扣多，先逛樓層圖再下手。'},
+ {d:3,nm:'恩平韓屋村',lat:37.640358,lng:126.939128,ic:'🏘️',dr:'drama',dn:'《暴君的廚師》拍攝地',intro:'北漢山腳下的大型新型韓屋聚落，韓劇《暴君的廚師》取景地；旁邊有韓屋咖啡廳（一人一杯），古色古香＋眺望北漢山。',tips:'跟津寬寺步行可達，排在一起剛好。'},
+ {d:3,nm:'津寬寺',lat:37.638203,lng:126.946545,ic:'🛕',dr:'千年古剎',dn:'北漢山國立公園內',intro:'韓國四大佛院、首爾四大名寺之一，千年古剎結合壯麗山景與極致寧靜。',tips:'山寺氛圍安靜，說話輕聲、拍照先留意僧侶。'},
+ {d:3,nm:'慶熙宮',lat:37.57094,lng:126.968102,ic:'🏰',dr:'五大古宮・免費',dn:'首爾鍾路區',intro:'「西闕」——首爾五大古宮之一，朝鮮後期重要離宮；唯一免費入場、氣氛最安靜的散步好去處。',tips:'免門票，跟旁邊的貞洞路（德壽宮石牆路）串成散步線。'},
+ {d:3,nm:'德壽宮石牆路',lat:37.566167,lng:126.97517,ic:'🍂',dr:'美麗道路100選',dn:'首爾中區',intro:'榮獲韓國美麗道路 100 選最優秀獎的浪漫散步道，全長 900 公尺，古樸石牆＋四季美景。',tips:'穿德壽宮前的廣場順走石牆路，全程約 20 分鐘。'},
+ {d:3,nm:'東大門綜合市場',lat:37.568345,lng:127.008762,ic:'🧵',dr:'最大批發市場',dn:'首爾中區',intro:'首爾規模最大的綜合批發市場：布料、服輔材料、飾品配件、婚禮用品——結合零售與批發。',tips:'晚上也有夜市氣氛；比價後再下手。'},
+ {d:4,nm:'青瓦臺前道路',lat:37.586683,lng:126.976067,ic:'🏛️',dr:'觀光100選',dn:'首爾鍾路區',intro:'連接孝子洞至八判洞的林蔭道，青瓦臺開放後的歷史風貌＋綠蔭大道＋豐富人文景觀。',tips:'青瓦臺免費參觀需預約；沿途散步很舒服。'},
+ {d:4,nm:'首爾明洞',lat:37.560898,lng:126.986376,ic:'💄',dr:'自由購物 3~4h',dn:'首爾中區',intro:'首爾第一購物重鎮：美妝、服飾、潮牌、街頭小吃應有盡有，一天流動人口可達百萬。退稅方便。',tips:'彩妝店滿額退稅；先掃美妝再吃小吃，3~4 小時剛好。'},
+ {d:5,nm:'首爾歷史公園(首爾路7017)',lat:37.556686,lng:126.97139,ic:'🌿',dr:'空中花園步道',dn:'首爾站旁',intro:'高架人行步道改造的空中花園，504 個花盆植物園，從首爾站步行即達。',tips:'傍晚亮燈後氛圍最好。'},
+ {d:5,nm:'聖水洞',lat:37.544569,lng:127.056102,ic:'📸',dr:'必逛新景點',dn:'城東區・聖水站',intro:'倉庫改造的文青街區：咖啡、選物店、工廠直營店聚集，首爾近年最紅的街區之一。',tips:'聖水站 3 號出口出站就是主街區。'},
+ {d:5,nm:'Standard Bread聖水店',lat:37.54191,lng:127.059897,ic:'🍞',dr:'巨大萌吐司',dn:'城東區聖水路18街37號',intro:'牆外超萌巨大吐司＋花叢小橋的麵包花園造景；生吐司＋紙巾吐司必買，飲料自理。',tips:'聖水站步行約 6 分鐘；排隊人潮多但流動快。'},
+];
+const HOTEL={nm:'仁川 SOPRA HOTEL（青羅）',lat:37.544606,lng:126.674352,note:'仁川西區 서곶로301街21號・仁川地鐵2號線西區廳站步行4分。行程住宿有多間候選，以領隊宣布為準。'};
+
+let cur=null,watch=null,dayFilter='全部';
+let visited=JSON.parse(localStorage.getItem('krVisited')||'{}');
+function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
+function nearSearch(kw){
+  if(!cur){alert('先按上面的「開啟 GPS」才能找附近哦～');return;}
+  window.open(`https://www.google.com/maps/search/${encodeURIComponent(kw)}/@${cur.latitude},${cur.longitude},16z`,'_blank');
+}
+function gmapLink(lat,lng,mode){return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode||'walking'}`;}
+function fmtDist(k){return k<1?Math.round(k*1000)+' 公尺':k.toFixed(1)+' km';}
+function locate(){
+  const st=document.getElementById('gpsStatus');
+  if(!navigator.geolocation){st.textContent='這個裝置/瀏覽器不支援 GPS。';return;}
+  st.innerHTML='⏳ 定位中…（允許位置權限，首次可能 5~10 秒）';
+  if(watch)navigator.geolocation.clearWatch(watch);
+  watch=navigator.geolocation.watchPosition(p=>{
+    cur=p.coords;
+    st.innerHTML=`<span class="locate-badge lb-green">GPS 連線中</span> 精度 ±${Math.round(p.coords.accuracy)} 公尺｜${new Date(p.timestamp).toLocaleTimeString('zh-TW')}`;
+    renderAll();
+  },e=>{
+    st.innerHTML=e.code===1?'🚫 位置權限被拒——請到瀏覽器設定開啟定位後重試。':'❌ 定位失敗（'+e.message+'）。室內常抓不到，走到戶外再試一次。';
+  },{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
+}
+function renderAll(){renderArrive();renderNear();renderProgress();renderSpots();}
+function renderArrive(){
+  const box=document.getElementById('arriveBox');
+  if(!cur){box.style.display='none';return;}
+  let near=SPOTS.map(s=>({...s,k:haversine(cur.latitude,cur.longitude,s.lat,s.lng)})).sort((a,b)=>a.k-b.k)[0];
+  const R=400; // 抵達半徑（公尺）
+  if(near.k*1000>500){box.style.display='none';return;}
+  box.style.display='block';
+  document.getElementById('arriveTag').textContent=`🎉 抵達景點｜Day ${near.d}`;
+  document.getElementById('arriveNm').textContent=`${near.ic} ${near.nm}`;
+  document.getElementById('arriveDist').textContent=`距離 ${fmtDist(near.k)}｜${near.dn}`;
+  document.getElementById('arriveIntro').textContent=near.intro;
+  document.getElementById('arriveTips').innerHTML='💡 '+near.tips;
+  document.getElementById('arriveNav').href=gmapLink(near.lat,near.lng);
+  document.getElementById('arriveMap').href=`https://www.google.com/maps/search/?api=1&query=${near.lat},${near.lng}`;
+  if(!visited[near.nm]){visited[near.nm]=new Date().toLocaleString('zh-TW');localStorage.setItem('krVisited',JSON.stringify(visited));}
+}
+function renderProgress(){
+  const row=document.getElementById('progRow');
+  if(!cur){row.style.display='none';return;}
+  row.style.display='block';
+  row.innerHTML='<div style="font-size:13px;font-weight:800;margin-bottom:6px;">🧭 跟團進度（GPS 抵達自動記錄）</div>'+[1,2,3,4,5].map(d=>{
+    const ds=SPOTS.filter(s=>s.d===d);
+    const done=ds.filter(s=>visited[s.nm]).length;
+    return `<span class="prog-chip ${done?'':'off'}">Day ${d}｜${done}/${ds.length}${done===ds.length?' ✅':''}</span>`;
+  }).join('');
+}
+function renderSpots(){
+  const tabs=['全部',1,2,3,4,5];
+  document.getElementById('dayTabs').innerHTML=tabs.map(t=>`<span class="day-tab ${dayFilter===t?'on':''}" onclick="dayFilter='${t}';renderSpots();">${t==='全部'?'📋 全部行程':'Day '+t}</span>`).join('');
+  document.getElementById('spotList').innerHTML=SPOTS.filter(s=>dayFilter==='全部'||s.d===dayFilter).map(s=>{
+    const vis=visited[s.nm];
+    return `
+    <div class="spot ${vis?'open':''}" onclick="const d=this.querySelector('.spot-desc');d.style.display=d.style.display==='block'?'none':'block'">
+      <div class="spot-head">
+        <div class="nm">${vis?'✅ ':''}${s.ic} ${s.nm}</div>
+        <span class="tag ${s.dr&&s.dr==='drama'?'drama':''}">${s.dr}</span>
+      </div>
+      <div class="spot-desc">${s.dn?'📍 '+s.dn+'<br>':''}${s.intro}</div>
+      <div class="spot-actions">
+        <a target="_blank" class="a-nav" onclick="event.stopPropagation()" href="${gmapLink(s.lat,s.lng)}">🚶 步行導航</a>
+        <a target="_blank" class="a-nav" onclick="event.stopPropagation()" href="${gmapLink(s.lat,s.lng,'transit')}">🚇 大眾運輸</a>
+        <a target="_blank" class="a-map" onclick="event.stopPropagation()" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">🗺️ 地圖開啟</a>
+      </div>
+    </div>`;}).join('');
+}
+renderSpots();
+</script>
+</body>
+</html>
