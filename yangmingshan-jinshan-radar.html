@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1d3557">
-<title>陽明山金山 GPS 旅遊雷達 V2.2｜地圖模式</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<title>陽明山金山 GPS 旅遊雷達 V2.3｜地圖模式</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
 <style>
 :root{
   --teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;
@@ -30,7 +30,7 @@ body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:v
 .sheet{position:fixed;left:0;right:0;bottom:0;z-index:999;background:var(--card);
   backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
   border-radius:22px 22px 0 0;box-shadow:var(--shadow-2);border:var(--stroke);
-  transform:translateY(calc(100% - 18vh));transition:transform 260ms cubic-bezier(.2,.8,.2,1);}
+  transform:translateY(calc(100% - 10vh));transition:transform 260ms cubic-bezier(.2,.8,.2,1);}
 .sheet.mid{transform:translateY(calc(100% - 56vh));}
 .sheet.full{transform:translateY(calc(100% - 92vh));}
 .grabber{width:44px;height:5px;border-radius:999px;background:rgba(38,70,83,.25);margin:9px auto 6px;}
@@ -95,6 +95,7 @@ footer{display:none;}
  .item .meta{color:#93aaa2;}
 }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 </head>
 <body>
 <div id="map"></div>
@@ -160,18 +161,33 @@ async function boot(){
   try{
     const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json?v=6'),fetch('data/trip/ysm_food.json?v=6')]);
     SPOTS=await a.json();FOOD=await b.json();
-    // 等 Leaflet（defer script）就緒
-    for(let i=0;i<40&&typeof L==='undefined';i++)await new Promise(r=>setTimeout(r,100));
+    // 等 Leaflet 就緒（上限 12 秒）＋失敗換 CDN 重載
+    for(let i=0;i<120&&typeof L==='undefined';i++)await new Promise(r=>setTimeout(r,100));
+    if(typeof L==='undefined'){
+      await new Promise((res)=>{const s2=document.createElement('script');s2.src='https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js';s2.onload=res;s2.onerror=res;document.head.appendChild(s2);});
+      await new Promise((res)=>{const c2=document.createElement('link');c2.rel='stylesheet';c2.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';document.head.appendChild(c2);res();});
+    }
     if(typeof L!=='undefined'){initMap();}
     render();
   }catch(e){$('stMini').textContent='資料載入失敗';}
 }
 function initMap(){
   map=L.map('map',{zoomControl:false,attributionControl:false}).setView([DEF.lat,DEF.lng],13);
+  map.on('click',function(ev){
+    // 容錯嗅探：點擊處 48px 內最近的景點直接彈卡（手指容錯）
+    const cp=map.latLngToContainerPoint(ev.latlng);
+    let best=null,bd=1e9;
+    SPOTS.forEach(s=>{
+      const p2=map.latLngToContainerPoint([s.lat,s.lng]);
+      const d=Math.hypot(p2.x-cp.x,p2.y-cp.y);
+      if(d<45&&d<bd){bd=d;best=s;}
+    });
+    if(best){curSpot=best;userPinned=best;showPreview(best);setSheet('mid');map.setView([best.lat,best.lng],Math.max(map.getZoom(),15));}
+  });
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
   L.circle([DEF.lat,DEF.lng],{radius:600,color:'#E76F51',weight:2,fillOpacity:.08}).addTo(map);
   SPOTS.forEach(s=>{
-    const m=L.circleMarker([s.lat,s.lng],{radius:7,color:'#2A9D8F',weight:2,fillColor:'#2A9D8F',fillOpacity:.85}).addTo(map);
+    const m=L.circleMarker([s.lat,s.lng],{radius:12,color:'#2A9D8F',weight:2,fillColor:'#2A9D8F',fillOpacity:.85}).addTo(map);
     m.on('click',()=>{
       curSpot=s;userPinned=s;
       showPreview(s);
@@ -288,6 +304,25 @@ function reportSpot(){const nm=(typeof inZone!=='undefined'&&inZone)?inZone.name
   $('grabber').addEventListener('click',()=>snap(1));
 })();
 boot();
+
+// 清單點擊彈卡（事件委託）
+document.getElementById('nearList').addEventListener('click',function(ev){
+  const item=ev.target.closest('.item');if(!item)return;
+  if(ev.target.classList.contains('fav-star')||ev.target.closest('.map-btn'))return;
+  const nmEl=item.querySelector('.nm');if(!nmEl)return;
+  const nm=nmEl.textContent.replace(/^[⭐☆✅ ]+/g,'').trim();
+  const s=SPOTS.find(x=>x.name===nm);
+  if(s){userPinned=s;curSpot=s;showPreview(s);setSheet('mid');if(window.map)map.setView([s.lat,s.lng],15);}
+});
+document.getElementById('foodList').addEventListener('click',function(ev){
+  const item=ev.target.closest('.item');if(!item)return;
+  if(ev.target.closest('.map-btn'))return;
+  const nmEl=item.querySelector('.nm');if(!nmEl)return;
+  const nm=nmEl.textContent.trim();
+  const f=FOOD.find(x=>x.name===nm);
+  if(f)window.open('https://www.google.com/maps/search/?api=1&query='+f.lat+','+f.lng,'_blank');
+});
+
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw-ysm.js').catch(()=>{});}</script>
 </body>
