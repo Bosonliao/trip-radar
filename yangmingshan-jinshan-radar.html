@@ -2,216 +2,285 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#2A9D8F">
-<title>陽明山金山一日 GPS 雷達 V1.5</title>
-<style>
-:root{--teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--sand);color:var(--navy);line-height:1.55;}
-header{background:linear-gradient(135deg,#1d3557 0%,var(--teal) 100%);color:#fff;padding:12px 16px 10px;position:sticky;top:0;z-index:9;}
-header h1{font-size:17px;font-weight:800;}
-.mini{display:none;font-size:11px;opacity:.92;margin-top:2px;}
-.mini.on{display:block;}
-.gps-box{margin:10px 12px 0;background:#fff;border-radius:14px;padding:13px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.btn{border:0;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:800;cursor:pointer;}
-.btn-main{background:var(--coral);color:#fff;width:100%;}
-.hint{margin-top:7px;font-size:13.5px;color:#7a8b92;}
-.gps-status{margin-top:8px;font-size:14px;color:#5a6b73;}
-.lb-green{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;background:#d8f3e8;color:#1a7f5c;}
-.arrive{margin:10px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.2);background:#fff;border:2px solid var(--coral);}
-.arrive-img{width:100%;height:150px;aspect-ratio:5/2;background:#eef2f2;object-fit:cover;display:block;}
-.arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:11px 16px 9px;}
-.arrive-head .t{font-size:12.5px;font-weight:700;opacity:.92;}
-.arrive-head .nm{font-size:19px;font-weight:800;margin-top:2px;}
-.arrive-head .d{font-size:11px;opacity:.92;margin-top:2px;}
-.arrive-body{padding:11px 16px 13px;}
-.intro{font-size:13.5px;color:#33454e;}
-.intro.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
-.more{color:var(--teal);font-weight:700;font-size:12.5px;cursor:pointer;margin-top:5px;display:inline-block;}
-.report-btn{margin-top:8px;width:100%;border:1.5px dashed #b7c7c1;background:transparent;color:#7a8b92;border-radius:10px;padding:10px;font-size:13px;font-weight:700;min-height:44px;}
-.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
-.chip{font-size:13px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
-.chip.fee{background:#fff3e2;color:#a05a1e;}
-.sec-title{margin:16px 14px 7px;font-size:15px;font-weight:800;}
-.search-row{display:flex;gap:8px;margin:8px 12px 0;}
-.search-box{flex:1;border:1.5px solid var(--teal);border-radius:10px;padding:11px 13px;font-size:16px;background:#fff;color:inherit;min-height:44px;}
-.fav-toggle{border:1.5px solid var(--coral);color:var(--coral);background:#fff;border-radius:10px;padding:0 14px;font-size:14px;font-weight:700;min-height:44px;}
-.fav-toggle.on{background:var(--coral);color:#fff;}
-.fav-star{cursor:pointer;font-size:18px;}
-.item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
-.item:last-child{border-bottom:0;}
-.item .nm{font-weight:700;font-size:14.5px;}
-.item .meta{font-size:13.5px;color:#7a8b92;margin-top:2px;}
-.dist{font-weight:800;color:var(--teal);font-size:13px;white-space:nowrap;}
-.dist.close{color:var(--coral);}
-.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:10px;padding:10px 13px;font-size:14px;font-weight:700;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;}
-.wrap{margin:7px 12px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.info-card{margin:8px 12px;background:#fff;border-radius:14px;padding:12px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.info-card h3{font-size:14px;font-weight:800;margin-bottom:5px;}
-.info-card p{font-size:12.4px;color:#44565e;}
-footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
-@media(prefers-color-scheme:dark){:root{--sand:#16211f;--navy:#d8e8e2;--teal:#3aa08f;--coral:#e8835f;}body{background:#16211f;color:#d8e8e5;}.item,.info-card,.gps-box,.arrive,.wrap{background:#1e2b28;box-shadow:0 2px 10px rgba(0,0,0,.4);color:#d8e8e5;}.item{border-bottom:1px solid #2a3835;}.dist{color:#5cc0ab;}.map-btn{background:#243531;color:#7fd4c4;border-color:#3a8a7c;}.tips{background:#243530;color:#bcd6cd;}.chip{background:#243530;color:#9fcfc2;}.chip.fee{background:#3a2d1e;color:#e8b878;}.gps-status{color:#a8bfb8;}.item .meta{color:#93aaa2;}header{background:linear-gradient(135deg,#0d1a17 0%,#20574d 100%);}}
-
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1d3557">
+<title>陽明山金山 GPS 旅遊雷達 V2.1｜地圖模式</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<style>.mini-map{width:100%;height:170px;border-radius:12px;margin-bottom:9px;background:#eef2f2;}</style>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+<style>
+:root{
+  --teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;
+  --bg:#E9F5F4;--card:rgba(255,255,255,.86);--card-solid:#fff;
+  --r-lg:20px;--r-md:16px;--r-sm:12px;
+  --shadow-1:0 6px 18px rgba(15,30,35,.10);
+  --shadow-2:0 14px 40px rgba(15,30,35,.18);
+  --stroke:1px solid rgba(38,70,83,.10);
+  --blur:14px;--tap:48px;--body:15px;--sub:13.5px;
+  --img-ratio:16/9;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--bg);color:var(--navy);font-size:var(--body);line-height:1.6;overflow:hidden;}
+#map{position:fixed;inset:0;z-index:0;background:#dfe9e6;}
+.topbar{position:fixed;left:10px;right:10px;top:calc(10px + env(safe-area-inset-top));z-index:1000;
+  padding:10px 14px;border-radius:16px;background:rgba(29,53,87,.62);color:#fff;
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));box-shadow:var(--shadow-1);}
+.topbar .h1{font-size:16px;font-weight:800;}
+.topbar .meta{font-size:12.5px;opacity:.93;margin-top:2px;}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;background:rgba(231,111,81,.9);margin-left:6px;}
+.pill.ok{background:rgba(42,157,143,.92);}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:999;background:var(--card);
+  backdrop-filter:blur(var(--blur));-webkit-backdrop-filter:blur(var(--blur));
+  border-radius:22px 22px 0 0;box-shadow:var(--shadow-2);border:var(--stroke);
+  transform:translateY(calc(100% - 18vh));transition:transform 260ms cubic-bezier(.2,.8,.2,1);}
+.sheet.mid{transform:translateY(calc(100% - 56vh));}
+.sheet.full{transform:translateY(calc(100% - 92vh));}
+.grabber{width:44px;height:5px;border-radius:999px;background:rgba(38,70,83,.25);margin:9px auto 6px;}
+.sheet-head{display:flex;gap:8px;align-items:center;padding:0 16px 8px;}
+.tab{border:1.5px solid var(--teal);color:var(--teal);background:rgba(255,255,255,.7);border-radius:99px;padding:8px 14px;font-size:13.5px;font-weight:800;min-height:38px;}
+.tab.on{background:var(--teal);color:#fff;}
+.content{max-height:92vh;overflow:auto;-webkit-overflow-scrolling:touch;padding:0 12px 18px;}
+.arrive{border-radius:var(--r-lg);overflow:hidden;background:var(--card-solid);box-shadow:var(--shadow-1);border:2px solid var(--coral);margin:6px 0 12px;}
+.arrive-img{width:100%;aspect-ratio:var(--img-ratio);height:auto;background:#eef2f2;object-fit:cover;display:block;}
+.arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:10px 16px 8px;}
+.arrive-head .t{font-size:12px;font-weight:700;opacity:.93;}
+.arrive-head .nm{font-size:19px;font-weight:800;margin-top:2px;}
+.arrive-head .d{font-size:11.5px;opacity:.92;margin-top:2px;}
+.arrive-body{padding:11px 15px 13px;}
+.intro{font-size:14px;color:#33454e;}
+.intro.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.more{color:var(--teal);font-weight:800;font-size:13px;cursor:pointer;margin-top:5px;display:inline-block;min-height:32px;background:none;border:0;}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+.chip{font-size:13px;background:var(--sand);color:#3d5a52;border-radius:999px;padding:3px 11px;font-weight:700;}
+.chip.fee{background:#fff3e2;color:#a05a1e;}
+.report-btn{margin-top:9px;width:100%;border:1.5px dashed #b7c7c1;background:transparent;color:#7a8b92;border-radius:10px;padding:10px;font-size:13px;font-weight:700;min-height:44px;}
+.acts{display:flex;gap:8px;margin-top:11px;}
+.acts a{flex:1;text-align:center;text-decoration:none;font-size:13.5px;font-weight:800;border-radius:12px;padding:13px 2px;min-height:48px;display:inline-flex;align-items:center;justify-content:center;}
+.a-map{background:linear-gradient(135deg,var(--coral) 0%,#f4a261 100%);color:#fff;box-shadow:0 8px 20px rgba(231,111,81,.30);}
+.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
+.a-food{background:#fff;color:var(--coral);border:1.5px solid var(--coral);}
+.mini-map{width:100%;height:150px;border-radius:12px;margin-bottom:9px;background:#eef2f2;}
+.sec-title{margin:15px 4px 7px;font-size:15.5px;font-weight:800;}
+.search-row{display:flex;gap:8px;margin:0 0 8px;}
+.search-box{flex:1;border:1.5px solid var(--teal);border-radius:12px;padding:11px 13px;font-size:16px;background:rgba(255,255,255,.9);color:inherit;min-height:48px;}
+.fav-toggle{border:1.5px solid var(--coral);color:var(--coral);background:rgba(255,255,255,.75);border-radius:12px;padding:0 14px;font-size:14px;font-weight:800;min-height:48px;}
+.fav-toggle.on{background:var(--coral);color:#fff;}
+.item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid rgba(38,70,83,.07);background:transparent;}
+.item:last-child{border-bottom:0;}
+.item .nm{font-weight:800;font-size:15px;}
+.item .meta{font-size:13.5px;color:#6b8088;margin-top:2px;}
+.dist{font-weight:800;color:var(--teal);font-size:13.5px;white-space:nowrap;}
+.dist.close{color:var(--coral);}
+.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:10px;padding:10px 13px;font-size:14px;font-weight:800;text-decoration:none;min-height:44px;display:inline-flex;align-items:center;}
+.fav-star{cursor:pointer;font-size:19px;}
+.hint{margin-top:6px;font-size:13px;color:rgba(255,255,255,.88);}
+.fab{position:fixed;right:12px;z-index:1001;display:flex;flex-direction:column;gap:10px;bottom:calc(20px + env(safe-area-inset-bottom));}
+.fab button{min-width:56px;min-height:56px;border-radius:18px;border:0;box-shadow:var(--shadow-2);font-weight:900;font-size:20px;background:rgba(255,255,255,.92);backdrop-filter:blur(10px);}
+.fab .fab-main{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;}
+.info-card{background:rgba(255,255,255,.75);border-radius:var(--r-md);padding:12px 15px;box-shadow:var(--shadow-1);margin:10px 0;}
+.info-card h3{font-size:14px;font-weight:800;margin-bottom:5px;}
+.info-card p{font-size:13.2px;color:#44565e;}
+.report-btn{width:100%;border:1.5px dashed #b7c7c1;background:transparent;color:#7a8b92;border-radius:10px;padding:10px;font-size:13px;font-weight:700;min-height:44px;margin-top:9px;}
+footer{display:none;}
+@media(prefers-color-scheme:dark){
+ :root{--bg:#121c1a;--card:rgba(30,43,40,.88);--card-solid:#1e2b28;}
+ body{background:var(--bg);color:#d8e8e5;}
+ .item{border-bottom:1px solid #2a3835;}
+ .dist{color:#5cc0ab;}
+ .map-btn{background:#243531;color:#7fd4c4;border-color:#3a8a7c;}
+ .search-box{background:#243531;color:#d8e8e5;border-color:#3a8a7c;}
+ .fav-toggle{background:#243531;}
+ .info-card{background:rgba(30,43,40,.8);}
+ .tips,.chip{background:#243530;color:#9fcfc2;}
+ .chip.fee{background:#3a2d1e;color:#e8b878;}
+ .intro{color:#c7dcd5;}
+ .item .meta{color:#93aaa2;}
+}
+</style>
 </head>
 <body>
-<header>
-  <h1>⛰️🌊 陽明山×金山 GPS 旅遊雷達</h1>
-  <div class="mini" id="mini"></div>
-</header>
-<div class="gps-box">
-  <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動出現詳細介紹）</button>
-  <div class="hint" id="gpsHint">📱 按下後會跳詢問 → 請選「允許」。沒跳出就再按一次。</div>
-  <div class="gps-status" id="st" role="status" aria-live="polite" aria-atomic="true">未開啟 GPS——目前以【二子坪】為中心。</div>
+<div id="map"></div>
+<div class="topbar">
+  <div class="h1">⛰️🌊 陽明山×金山 GPS 旅遊雷達</div>
+  <div class="meta"><span id="stMini">未定位——點右下 📍 開 GPS</span><span class="pill" id="pill">GPS</span></div>
 </div>
-<div class="arrive" id="arriveBox" style="display:none;">
-  <img class="arrive-img" id="aImg" alt="" width="750" height="300" decoding="async" loading="eager">
-  <div class="mini-map" id="miniMap" style="display:none;"></div>
-  <div class="arrive-head"><div class="t" id="aTag"></div><div class="nm" id="aNm"></div><div class="d" id="aD"></div></div>
-  <div class="arrive-body">
-    <div class="intro" id="aIntro"></div>
-    <button id="aMore" class="more" type="button" aria-expanded="false" aria-controls="aIntro" onclick="toggleIntro()">⋯ 展開全文</button>
-    <div class="chips" id="aChips"></div>
-    <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
-    <button class="report-btn" id="reportBtn" onclick="reportSpot()">⚠️ 資訊有誤？回報</button>
+<div class="fab">
+  <button id="btnFav" onclick="toggleFavMode()" aria-label="最愛">⭐</button>
+  <button id="btnGps" class="fab-main" onclick="locate()" aria-label="開啟 GPS">📍</button>
+</div>
+<div class="sheet" id="sheet">
+  <div class="grabber" id="grabber"></div>
+  <div class="sheet-head">
+    <button class="tab on" id="tabSpots" onclick="setTab('spots')">🎯 附近景點</button>
+    <button class="tab" id="tabFood" onclick="setTab('food')">🍽️ 附近美食</button>
+  </div>
+  <div class="content">
+    <div class="arrive" id="arriveBox" style="display:none;">
+      <img class="arrive-img" id="aImg" alt="" width="750" height="422" decoding="async" loading="eager">
+      <div class="arrive-head"><div class="t" id="aTag"></div><div class="nm" id="aNm"></div><div class="d" id="aD"></div></div>
+      <div class="arrive-body">
+        <div class="intro" id="aIntro"></div>
+        <button id="aMore" class="more" type="button" aria-expanded="false" aria-controls="aIntro" onclick="toggleIntro()">⋯ 展開全文</button>
+        <div class="chips" id="aChips"></div>
+        <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
+        <button class="report-btn" onclick="reportSpot()">⚠️ 資訊有誤？回報</button>
+      </div>
+    </div>
+    <div id="spotPane">
+      <div class="search-row"><input id="q" class="search-box" type="search" placeholder="🔍 搜尋景點…" oninput="render()"><button id="favModeBtn" class="fav-toggle" onclick="toggleFavMode()">⭐ 最愛</button></div>
+      <div id="nearList"></div>
+    </div>
+    <div id="foodPane" style="display:none;">
+      <div id="foodList"></div>
+    </div>
+    <div class="info-card"><h3>💡 今日路線</h3>
+      <p>二子坪→金山老街（鴨肉必吃）→獅頭山燭臺雙嶼→【回程】淡水老街→淡海大橋→楊梅。</p>
+      <p>緊急：報警 112／救護 119｜觀光熱線 0800-011-765。</p>
+    </div>
+    <div class="info-card"><h3>🚄 交通</h3>
+      <p>T-money 無關（台灣！）——台灣好行巴士、悠遊卡通用；導航用 Naver 換成 Google Maps 即可。</p>
+    </div>
   </div>
 </div>
-<div class="sec-title">🎯 附近景點（<span id="spotScope"></span>）</div>
-<div class="search-row"><input id="q" class="search-box" type="search" placeholder="🔍 搜尋景點…" oninput="render()"><button id="favBtn" class="fav-toggle" onclick="toggleFavMode()" aria-pressed="false">⭐ 最愛</button></div>
-<div class="wrap"><div id="nearList"></div></div>
-<div class="sec-title">🍽️ 附近美食（<span id="foodScope"></span>）</div>
-<div class="wrap"><div id="foodList"></div></div>
-<div class="info-card"><h3>💡 今日小卡</h3>
-<p>・陽明山海拔高、天氣多變——帶件外套，二子坪霧來得快。</p>
-<p>・今日路線：二子坪→金山老街（鴨肉必吃）→獅頭山燭臺雙嶼→【回程】淡水老街→淡海大橋→楊梅。</p>
-<p>・觀光熱線 <b>0800-011-765</b>｜緊急：報警 112／救護 119。</p></div>
-<footer>資料源：台灣旅遊資料庫＋美食雷達｜novamind.tw V1.5</footer>
 <script>
 let SPOTS=[],FOOD=[];
-
-let cur=null,watch=null,gpsOn=false,inZone=null,favMode=false;
-const favs=new Set(JSON.parse(localStorage.getItem("ysmFavs")||"[]"));
+let cur=null,watch=null,gpsOn=false,inZone=null,favMode=false,tabMode='spots',sheetState='peek';
 const visited=new Set(JSON.parse(localStorage.getItem('ysmVisited')||'[]'));
+const favs=new Set(JSON.parse(localStorage.getItem('ysmFavs')||'[]'));
 const DEF={lat:25.1812,lng:121.5686};
 const R_IN=600,R_OUT=800;
 const $=id=>document.getElementById(id);
+let map=null,myMarker=null,nearMarkers=[];
 function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
 function fmtDist(k){return k<1?Math.round(k*1000)+' m':k.toFixed(1)+' km';}
 function gmapLink(lat,lng,mode){return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+(mode||'walking');}
 function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
-async function fRetry(u,n){for(let i=0;i<2;i++){try{return await fetch(u)}catch(e){await new Promise(r=>setTimeout(r,800));}}return fetch(u);}
+function setSheet(s){sheetState=s;const el=$('sheet');el.classList.toggle('mid',s==='mid');el.classList.toggle('full',s==='full');}
+function setTab(t){tabMode=t;$('tabSpots').classList.toggle('on',t==='spots');$('tabFood').classList.toggle('on',t==='food');$('spotPane').style.display=t==='spots'?'block':'none';$('foodPane').style.display=t==='food'?'block':'none';if(SPOTS.length)render();}
 async function boot(){
   try{
-    const [a,b]=await Promise.all([fRetry('data/trip/ysm_spots.json?v=5'),fRetry('data/trip/ysm_food.json?v=5')]);
+    const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json?v=6'),fetch('data/trip/ysm_food.json?v=6')]);
     SPOTS=await a.json();FOOD=await b.json();
-    $('st').textContent=$('st').textContent;
+    // 等 Leaflet（defer script）就緒
+    for(let i=0;i<40&&typeof L==='undefined';i++)await new Promise(r=>setTimeout(r,100));
+    if(typeof L!=='undefined'){initMap();}
     render();
-  }catch(e){$('st').textContent='資料載入失敗：'+e;}
+  }catch(e){$('stMini').textContent='資料載入失敗';}
 }
-let wakeLock=null;
-async function keepAwake(){try{if('wakeLock' in navigator){wakeLock=await navigator.wakeLock.request('screen');}}catch(e){}}
+function initMap(){
+  map=L.map('map',{zoomControl:false,attributionControl:false}).setView([DEF.lat,DEF.lng],13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(map);
+  L.circle([DEF.lat,DEF.lng],{radius:600,color:'#E76F51',weight:2,fillOpacity:.08}).addTo(map);
+  SPOTS.forEach(s=>{
+    const m=L.circleMarker([s.lat,s.lng],{radius:7,color:'#2A9D8F',weight:2,fillColor:'#2A9D8F',fillOpacity:.85}).addTo(map);
+    m.on('click',()=>{
+      curSpot=s;
+      showPreview(s);
+      setSheet('mid');
+      map.setView([s.lat,s.lng],15);
+    });
+  });
+}
+let curSpot=null;
+function showPreview(s){
+  const box=$('arriveBox');box.style.display='block';
+  $('aTag').textContent='📍 景點預覽｜'+fmtDist(haversine(cLat(),cLng(),s.lat,s.lng));
+  $('aNm').textContent=s.name;
+  $('aD').textContent=(s.area||'')+'｜'+(s.rating?'★'+s.rating:'');
+  const img=$('aImg');
+  if(s.image){img.src=s.image;img.alt=s.name+' 照片';img.style.display='block';}else{img.style.display='none';}
+  const introEl=$('aIntro');introEl.textContent=s.desc||'（暫無介紹）';
+  introEl.classList.toggle('clamp',(s.desc||'').length>160);
+  $('aMore').style.display=(s.desc||'').length>160?'inline-block':'none';
+  $('aMore').textContent='⋯ 展開全文';
+  let chips='';
+  if(s.fee)chips+='<span class="chip fee">🎫 '+esc(s.fee)+'</span>';
+  (s.tags||[]).slice(0,4).forEach(t=>{chips+='<span class="chip">'+esc(t)+'</span>';});
+  $('aChips').innerHTML=chips;
+  $('aNav').href=gmapLink(s.lat,s.lng);
+  $('aMap').href=s.web||('https://www.google.com/maps/search/?api=1&query='+s.lat+','+s.lng);
+  $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+s.lat+','+s.lng+',16z';
+}
+function cLat(){return cur?cur.latitude:DEF.lat}
+function cLng(){return cur?cur.longitude:DEF.lng}
 function locate(){
-  const st=$('st');
-  keepAwake();
-  if(!navigator.geolocation){st.textContent='此瀏覽器不支援定位';return;}
-  st.innerHTML='⏳ 定位中…';
-  if(window._w)navigator.geolocation.clearWatch(window._w);
+  if(!navigator.geolocation){$('stMini').textContent='不支援定位';return;}
+  $('stMini').textContent='⏳ 定位中…';
   let lastT=0,lastLat=0,lastLng=0;
+  if(window._w)navigator.geolocation.clearWatch(window._w);
   window._w=navigator.geolocation.watchPosition(p=>{
     const now=Date.now();
     const d=haversine(lastLat,lastLng,p.coords.latitude,p.coords.longitude);
     if(now-lastT<30000&&d<0.05)return;
     lastT=now;lastLat=p.coords.latitude;lastLng=p.coords.longitude;
-    cur=p.coords;
-    if(!gpsOn){gpsOn=true;$("mini").classList.add("on");}
-    st.innerHTML='<span class="lb-green">GPS 連線中</span> 精度 ±'+Math.round(p.coords.accuracy)+' m｜'+new Date(p.timestamp).toLocaleTimeString('zh-TW');
+    cur=p.coords;gpsOn=true;
+    $('stMini').innerHTML='GPS ±'+Math.round(p.coords.accuracy)+'m｜'+new Date(p.timestamp).toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+    $('pill').classList.add('ok');$('pill').textContent='連線';
+    if(map){map.setView([p.coords.latitude,p.coords.longitude],14);try{L.circleMarker([p.coords.latitude,p.coords.longitude],{radius:9,color:'#E76F51',weight:3,fillColor:'#fff',fillOpacity:1}).addTo(map);}catch(e){}}
     render();
-  },e=>{st.textContent=e.code===1?'🚫 位置權限被拒——設定→Safari→位置→允許後重試。':'❌ '+e.message;},{enableHighAccuracy:true,maximumAge:5000,timeout:25000});
-}
-function toggleFav(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem("ysmFavs",JSON.stringify(Array.from(favs)));render();}
-function toggleFavMode(){favMode=!favMode;const b=document.getElementById("favToggle")||document.getElementById("fav-toggle");}
-function reportSpot(){const nm=inZone?inZone.name:"";const u="https://docs.google.com/forms/d/e/1FAIpQLSd_example/view?entry.0="+encodeURIComponent(nm);window.open("mailto:nova.ai0525@gmail.com?subject="+encodeURIComponent("旅遊雷達資訊回報："+nm)+"&body="+encodeURIComponent("景點："+nm+"\n問題描述："),"_blank");}
-function toggleIntro(){
-  const el=$('aIntro');
-  const clamped=el.classList.contains('clamp');
-  el.classList.toggle('clamp',!clamped);
-  $('aMore').textContent=clamped?'⋯ 展開全文':'收起 ▲';
+  },e=>{$('stMini').textContent=e.code===1?'🚫 位置權限被拒——設定→Safari→位置→允許':'❌ '+e.message;},
+  {enableHighAccuracy:true,maximumAge:5000,timeout:25000});
 }
 function render(){
-  const cx=cur?cur.latitude:DEF.lat, cy=cur?cur.longitude:DEF.lng;
-  const scopeTxt=gpsOn?'GPS 即時':'預設・二子坪';
-  $('spotScope').textContent=scopeTxt;
-  $('foodScope').textContent=scopeTxt;
+  const cx=cLat(),cy=cLng();
+  const scope=gpsOn?'GPS 即時':'預設・二子坪';
   const box=SPOTS.filter(s=>Math.abs(s.lat-cx)<0.15&&Math.abs(s.lng-cy)<0.15)
     .map(s=>Object.assign({},s,{k:haversine(cx,cy,s.lat,s.lng)})).sort((a,b)=>a.k-b.k);
-  // 抵達 hysteresis：600m 進、800m 出
-  if(inZone){
+  if(gpsOn&&inZone){
     const dNow=haversine(cx,cy,inZone.lat,inZone.lng)*1000;
-    if(dNow>R_OUT){inZone=null;}
+    if(dNow>R_OUT)inZone=null;
   }
-  if(!inZone&&box.length&&box[0].k*1000<R_IN){
+  if(gpsOn&&!inZone&&box.length&&box[0].k*1000<R_IN){
     inZone=box[0];
     if(!visited.has(inZone.name)){visited.add(inZone.name);localStorage.setItem('ysmVisited',JSON.stringify(Array.from(visited)));}
+    if(navigator.vibrate)navigator.vibrate([80,60,80]);
   }
   const ab=$('arriveBox');
-  if(inZone){
+  if(gpsOn&&inZone){
     ab.style.display='block';
-    const dNow=haversine(cx,cy,inZone.lat,inZone.lng);
-    $('aTag').textContent='🎉 你現在在這附近｜'+fmtDist(dNow);
-    $('aNm').textContent=inZone.name;
-    $('aD').textContent=(inZone.area||'')+'｜'+(inZone.rating?'★'+inZone.rating:'');
-    const img=$('aImg');
-    if(inZone.image){img.src=inZone.image;img.alt=inZone.name+' 照片';img.style.display='block';}else{img.style.display='none';}
-    const introEl=$('aIntro');
-    const fullText=esc(inZone.desc)||'（暫無介紹——點地圖看更多）';
-    introEl.innerHTML=fullText;
-    if(fullText.length>160){introEl.classList.add('clamp');$('aMore').style.display='inline-block';$('aMore').textContent='⋯ 展開全文';}
-    else{introEl.classList.remove('clamp');$('aMore').style.display='none';}
-    let chips='';
-    if(inZone.fee)chips+='<span class="chip fee">🎫 '+esc(inZone.fee)+'</span>';
-    (inZone.tags||[]).slice(0,4).forEach(t=>{chips+='<span class="chip">'+esc(t)+'</span>';});
-    $('aChips').innerHTML=chips;
-    // Leaflet 迷你地圖
-    try{
-      if(window.L){
-        if(!window._map){
-          window._map=L.map('miniMap',{zoomControl:false,attributionControl:false});
-          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18}).addTo(window._map);
-          window._marker=L.marker([inZone.lat,inZone.lng]).addTo(window._map);
-        }else{
-          window._map.setView([inZone.lat,inZone.lng],16);
-          if(window._marker)window._map.removeLayer(window._marker);
-          window._marker=L.marker([inZone.lat,inZone.lng]).addTo(window._map);
-        }
-        window._map.invalidateSize();
-        window._map.setView([inZone.lat,inZone.lng],16);
-        document.getElementById('miniMap').style.display='block';
-      }
-    }catch(e){}
+    showPreview(inZone);
+    $('aTag').textContent='🎉 你現在在這附近｜'+fmtDist(haversine(cx,cy,inZone.lat,inZone.lng));
     if(navigator.vibrate)navigator.vibrate([80,60,80]);
-    $('aNav').href=gmapLink(inZone.lat,inZone.lng);
-    $('aMap').href=inZone.web||('https://www.google.com/maps/search/?api=1&query='+inZone.lat+','+inZone.lng);
-    $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+inZone.lat+','+inZone.lng+',16z';
-  }else{ab.style.display='none';if(document.getElementById('miniMap'))document.getElementById('miniMap').style.display='none';}
-  const __q=($('q')||{}).value||'';
+  }else if(!gpsOn){ab.style.display='none';}
+  // 清單（含搜尋/最愛過濾）
+  const qv=($('q')||{}).value||'';
   let shown=box;
   if(favMode)shown=shown.filter(s=>favs.has(s.name));
-  if(__q)shown=shown.filter(s=>((s.name||'')+(s.area||'')).indexOf(__q)>=0);
-  $('nearList').innerHTML=shown.slice(0,10).map(s=>
-  '<div class="item"><div><div class="nm"><span class="fav-star" onclick="event.stopPropagation();toggleFav(\''+esc(s.name).replace(/'/g,"\\'")+'\')">'+(favs.has(s.name)?'⭐':'☆')+'</span> '+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div></div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
-  '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(s.k<1?'close':'')+'">'+fmtDist(s.k)+'</span>'+
-  '<a class="map-btn" target="_blank" href="'+gmapLink(s.lat,s.lng)+'">帶我去</a></div></div>').join('');
-  const fw=FOOD.map(f=>Object.assign({},f,{k:haversine(cx,cy,f.lat,f.lng)})).sort((a,b)=>a.k-b.k);
-  $('foodList').innerHTML=fw.slice(0,12).map(f=>
-  '<div class="item"><div><div class="nm">'+esc(f.name)+'</div><div class="meta">'+f.rating+'★ '+f.reviews+'則｜'+esc(f.addr||'')+'</div></div>'+
-  '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(f.k<1?'close':'')+'">'+fmtDist(f.k)+'</span>'+
-  '<a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+f.lat+','+f.lng+'">帶我去</a></div></div>').join('');
-  if(gpsOn&&cur)$('mini').innerHTML='GPS ±'+Math.round(cur.accuracy)+'m｜最近：'+(box.length?esc(box[0].name)+' '+fmtDist(box[0].k):'—');
+  if(qv)shown=shown.filter(s=>((s.name||'')+(s.area||'')).indexOf(qv)>=0);
+  if(tabMode==='spots'){
+    $('nearList').innerHTML=shown.slice(0,12).map(s=>
+    '<div class="item"><div><div class="nm"><span class="fav-star" onclick="toggleFavByName(\''+esc(s.name).replace(/'/g,"\\'")+'\')">'+(favs.has(s.name)?'⭐':'☆')+'</span> '+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
+    '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(s.k<1?'close':'')+'">'+fmtDist(s.k)+'</span>'+
+    '<a class="map-btn" target="_blank" href="'+gmapLink(s.lat,s.lng)+'">帶我去</a></div></div>').join('');
+  }else if(tabMode==='food'){
+    const fw=FOOD.map(f=>Object.assign({},f,{k:haversine(cx,cy,f.lat,f.lng)})).sort((a,b)=>a.k-b.k);
+    $('foodList').innerHTML=fw.slice(0,12).map(f=>
+    '<div class="item"><div><div class="nm">'+esc(f.name)+'</div><div class="meta">'+f.rating+'★ '+f.reviews+'則｜'+esc(f.addr||'')+'</div></div>'+
+    '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(f.k<1?'close':'')+'">'+fmtDist(f.k)+'</span>'+
+    '<a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+f.lat+','+f.lng+'">帶我去</a></div></div>').join('');
+  }
+  // 抵達時自動 Mid
+  if(gpsOn&&inZone&&sheetState==='peek')setSheet('mid');
 }
+function toggleFavByName(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem('ysmFavs',JSON.stringify(Array.from(favs)));render();}
+function toggleFavMode(){favMode=!favMode;$('favModeBtn').classList.toggle('on',favMode);render();}
+function toggleIntro(){const el=$('aIntro');const c=el.classList.contains('clamp');el.classList.toggle('clamp',!c);$('aMore').textContent=c?'⋯ 展開全文':'收起 ▲';$('aMore').setAttribute('aria-expanded',c?'true':'false');}
+function reportSpot(){const nm=(typeof inZone!=='undefined'&&inZone)?inZone.name:(curSpot?curSpot.name:'');window.open('mailto:nova.ai0525@gmail.com?subject='+encodeURIComponent('旅遊雷達資訊回報：'+nm)+'&body='+encodeURIComponent('景點：'+nm+'\n問題描述：'),'_blank');}
+// sheet 手勢
+(function(){
+  const sheet=$('sheet');let startY=0,curY=0,dragging=false;
+  const order=['peek','mid','full'];
+  function snap(dir){
+    let i=order.indexOf(sheetState);
+    i=Math.max(0,Math.min(order.length-1,i+dir));
+    setSheet(order[i]);
+  }
+  $('grabber').addEventListener('pointerdown',e=>{dragging=true;startY=e.clientY;sheet.style.transition='none';});
+  window.addEventListener('pointermove',e=>{if(!dragging)return;curY=e.clientY-startY;});
+  window.addEventListener('pointerup',e=>{
+    if(!dragging)return;dragging=false;sheet.style.transition='';
+    if(curY<-40)snap(1);else if(curY>40)snap(-1);curY=0;
+  });
+  $('grabber').addEventListener('click',()=>snap(1));
+})();
 boot();
 </script>
 <script>if('serviceWorker' in navigator){navigator.serviceWorker.register('sw-ysm.js').catch(()=>{});}</script>
