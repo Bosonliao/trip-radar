@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#1d3557">
-<title>陽明山金山 GPS 旅遊雷達 V2.4｜地圖模式</title>
+<title>陽明山金山 GPS 旅遊雷達 V2.5｜地圖模式</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
 <style>
 :root{
@@ -33,6 +33,9 @@ body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:v
   transform:translateY(calc(100% - 56vh));transition:transform 260ms cubic-bezier(.2,.8,.2,1);}
 .sheet.mid{transform:translateY(calc(100% - 56vh));}
 .sheet.full{transform:translateY(calc(100% - 92vh));}
+.sheet.peek{transform:translateY(calc(100% - 112px));}
+body.map-hidden #map{display:none;}
+body.map-hidden .sheet{transform:none;top:calc(90px + env(safe-area-inset-top));}
 .sheet-btns{display:flex;gap:8px;justify-content:center;padding:9px 16px 6px;}
 .grabber{display:none;}
 .sheet-btn{flex:1;border:1.5px solid var(--teal);background:rgba(255,255,255,.85);color:var(--teal);border-radius:12px;padding:11px 6px;font-size:15px;font-weight:800;min-height:48px;}
@@ -113,6 +116,7 @@ footer{display:none;}
   <div class="sheet-btns">
     <button class="sheet-btn" onclick="setSheet('full')">⬆️ 展開全部</button>
     <button class="sheet-btn" onclick="setSheet('peek')">⬇️ 看地圖</button>
+    <button class="sheet-btn" id="btnMap" onclick="toggleMap()">🚫 藏地圖</button>
   </div>
   <div class="sheet-head">
     <button class="tab on" id="tabSpots" onclick="setTab('spots')">🎯 附近景點</button>
@@ -160,9 +164,10 @@ function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)*
 function fmtDist(k){return k<1?Math.round(k*1000)+' m':k.toFixed(1)+' km';}
 function gmapLink(lat,lng,mode){return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+(mode||'walking');}
 function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
-function setSheet(s){sheetState=s;const el=$('sheet');el.classList.toggle('mid',s==='mid');el.classList.toggle('full',s==='full');}
+function setSheet(s){sheetState=s;const el=$('sheet');el.classList.toggle('mid',s==='mid');el.classList.toggle('full',s==='full');el.classList.toggle('peek',s==='peek');}
 function setTab(t){tabMode=t;$('tabSpots').classList.toggle('on',t==='spots');$('tabFood').classList.toggle('on',t==='food');$('spotPane').style.display=t==='spots'?'block':'none';$('foodPane').style.display=t==='food'?'block':'none';if(SPOTS.length)render();}
 async function boot(){
+  if(localStorage.getItem('ysmMapHidden')==='1'){document.body.classList.add('map-hidden');const bm=$('btnMap');if(bm)bm.textContent='🗺️ 開地圖';}
   try{
     const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json?v=6'),fetch('data/trip/ysm_food.json?v=6')]);
     SPOTS=await a.json();FOOD=await b.json();
@@ -289,6 +294,13 @@ function render(){
 function unpin(){userPinned=null;curSpot=null;if(gpsOn)render();else{$('arriveBox').style.display='none';}}
 function toggleFavByName(nm){if(favs.has(nm))favs.delete(nm);else favs.add(nm);localStorage.setItem('ysmFavs',JSON.stringify(Array.from(favs)));render();}
 function toggleFavMode(){favMode=!favMode;$('favModeBtn').classList.toggle('on',favMode);render();}
+function toggleMap(){
+  const hidden=!document.body.classList.contains('map-hidden');
+  document.body.classList.toggle('map-hidden',hidden);
+  $('btnMap').textContent=hidden?'🗺️ 開地圖':'🚫 藏地圖';
+  localStorage.setItem('ysmMapHidden',hidden?'1':'0');
+  if(!hidden){setSheet('mid');if(map)setTimeout(()=>{map.invalidateSize();},350);}
+}
 function toggleIntro(){const el=$('aIntro');const c=el.classList.contains('clamp');el.classList.toggle('clamp',!c);$('aMore').textContent=c?'⋯ 展開全文':'收起 ▲';$('aMore').setAttribute('aria-expanded',c?'true':'false');}
 function reportSpot(){const nm=(typeof inZone!=='undefined'&&inZone)?inZone.name:(curSpot?curSpot.name:'');window.open('mailto:nova.ai0525@gmail.com?subject='+encodeURIComponent('旅遊雷達資訊回報：'+nm)+'&body='+encodeURIComponent('景點：'+nm+'\n問題描述：'),'_blank');}
 boot();
