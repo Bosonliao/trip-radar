@@ -1,5 +1,5 @@
 'use strict';
-const VERSION='ysm-v3.1.0';
+const VERSION='ysm-v3.1.1';
 const CACHE_STATIC='static-'+VERSION;
 const CACHE_DATA='data-'+VERSION;
 const PRECACHE=['./','./yangmingshan-jinshan-radar.html','./data/trip/ysm_spots.json','./data/trip/ysm_food.json'];
@@ -22,11 +22,11 @@ self.addEventListener('fetch',e=>{
     }).catch(()=>fetch(e.request)));
     return;
   }
-  // 頁面殼：cache-first
+  // 頁面殼：network-first（有網永遠拿最新版，離線 fallback 快取）
   if(u.includes('github.io')||u.includes('trip-radar')){
-    e.respondWith(caches.match(e.request).then(hit=>hit||fetch(e.request).then(resp=>{
+    e.respondWith(fetch(e.request).then(resp=>{
       if(resp.ok){const cp=resp.clone();caches.open(CACHE_STATIC).then(c=>c.put(e.request,cp));}
       return resp;
-    }).catch(()=>caches.match('./yangmingshan-jinshan-radar.html'))));
+    }).catch(()=>caches.match(e.request).then(h=>h||caches.match('./yangmingshan-jinshan-radar.html'))));
   }
 });
