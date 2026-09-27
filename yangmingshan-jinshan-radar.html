@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>陽明山金山一日 GPS 雷達｜美食×景點×歷史 V1.2</title>
+<title>陽明山金山一日 GPS 雷達 V1.3</title>
 <style>
 :root{--teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--sand);color:var(--navy);line-height:1.5;}
+body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--sand);color:var(--navy);line-height:1.55;}
 header{background:linear-gradient(135deg,#1d3557 0%,var(--teal) 100%);color:#fff;padding:12px 16px 10px;position:sticky;top:0;z-index:9;}
 header h1{font-size:17px;font-weight:800;}
-.mini{display:none;font-size:11px;opacity:.9;margin-top:2px;}
+.mini{display:none;font-size:11px;opacity:.92;margin-top:2px;}
 .mini.on{display:block;}
 .gps-box{margin:10px 12px 0;background:#fff;border-radius:14px;padding:13px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
 .btn{border:0;border-radius:10px;padding:11px 16px;font-size:15px;font-weight:800;cursor:pointer;}
@@ -18,18 +18,18 @@ header h1{font-size:17px;font-weight:800;}
 .gps-status{margin-top:8px;font-size:12.6px;color:#5a6b73;}
 .lb-green{display:inline-block;padding:2px 10px;border-radius:99px;font-size:11.5px;font-weight:700;background:#d8f3e8;color:#1a7f5c;}
 .arrive{margin:10px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.2);background:#fff;border:2px solid var(--coral);}
+.arrive-img{width:100%;height:150px;object-fit:cover;display:block;}
 .arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:11px 16px 9px;}
 .arrive-head .t{font-size:11.5px;font-weight:700;opacity:.92;}
 .arrive-head .nm{font-size:19px;font-weight:800;margin-top:2px;}
 .arrive-head .d{font-size:11px;opacity:.92;margin-top:2px;}
 .arrive-body{padding:11px 16px 13px;}
-.intro{font-size:13.3px;color:#33454e;}
-.tips{margin-top:8px;background:var(--sand);border-radius:10px;padding:8px 11px;font-size:12.1px;color:#44565e;}
-.acts{display:flex;gap:7px;margin-top:10px;}
-.acts a{flex:1;text-align:center;text-decoration:none;font-size:12.5px;font-weight:700;border-radius:9px;padding:9px 2px;}
-.a-map{background:var(--teal);color:#fff;}
-.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
-.a-food{background:#fff;color:var(--coral);border:1.5px solid var(--coral);}
+.intro{font-size:13.5px;color:#33454e;}
+.intro.clamp{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.more{color:var(--teal);font-weight:700;font-size:12.5px;cursor:pointer;margin-top:5px;display:inline-block;}
+.chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px;}
+.chip{font-size:11px;background:var(--sand);color:#3d5a52;border-radius:99px;padding:3px 10px;font-weight:700;}
+.chip.fee{background:#fff3e2;color:#a05a1e;}
 .sec-title{margin:16px 14px 7px;font-size:15px;font-weight:800;}
 .item{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
 .item:last-child{border-bottom:0;}
@@ -51,13 +51,18 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
   <div class="mini" id="mini"></div>
 </header>
 <div class="gps-box">
-  <button class="btn btn-main" onclick="locate()">📍 開啟 GPS（即時跟著你走）</button>
-  <div class="gps-status" id="st">未開啟 GPS——目前以【二子坪】為中心顯示附近情報。</div>
+  <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動出現詳細介紹）</button>
+  <div class="gps-status" id="st">未開啟 GPS——目前以【二子坪】為中心。</div>
 </div>
 <div class="arrive" id="arriveBox" style="display:none;">
+  <img class="arrive-img" id="aImg" alt="">
   <div class="arrive-head"><div class="t" id="aTag"></div><div class="nm" id="aNm"></div><div class="d" id="aD"></div></div>
-  <div class="arrive-body"><div class="intro" id="aIntro"></div><div class="tips" id="aTips"></div>
-  <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div></div>
+  <div class="arrive-body">
+    <div class="intro" id="aIntro"></div>
+    <div class="more" id="aMore" onclick="toggleIntro()">⋯ 展開全文</div>
+    <div class="chips" id="aChips"></div>
+    <div class="acts"><a class="a-nav" id="aNav" target="_blank">🚶 帶我去</a><a class="a-map" id="aMap" target="_blank">🗺️ 地圖開啟</a><a class="a-food" id="aFood" target="_blank">🍽️ 附近美食</a></div>
+  </div>
 </div>
 <div class="sec-title">🎯 附近景點（<span id="spotScope"></span>）</div>
 <div class="wrap"><div id="nearList"></div></div>
@@ -67,80 +72,96 @@ footer{text-align:center;font-size:11px;color:#8aa0a8;padding:15px 0 22px;}
 <p>・陽明山海拔高、天氣多變——帶件外套，二子坪霧來得快。</p>
 <p>・金山一日路線：二子坪→冷水坑→金山老街（鴨肉必吃）→磺港溫泉→獅頭山公園看燭臺雙嶼。</p>
 <p>・觀光熱線 <b>0800-011-765</b>｜緊急：報警 112／救護 119。</p></div>
-<footer>資料源：台灣旅遊資料庫＋美食雷達 restaurants.csv｜novamind.tw V1.2</footer>
+<footer>資料源：台灣旅遊資料庫＋美食雷達｜novamind.tw V1.3</footer>
 <script>
-let SPOTS=[],FOOD=[],cur=null,watch=null,gpsOn=false,lastFix=0,lastLat=0,lastLng=0;
-let inZone=null; // hysteresis: 目前停留的景點
+let SPOTS=[],FOOD=[];
+let cur=null,watch=null,gpsOn=false,inZone=null;
 const visited=new Set(JSON.parse(localStorage.getItem('ysmVisited')||'[]'));
-const DEF={lat:25.1812,lng:121.5686,label:'二子坪'};
-const R_ARRIVE=600,R_IN=300,R_OUT=500;
+const DEF={lat:25.1812,lng:121.5686};
+const R_IN=600,R_OUT=800;
+const $=id=>document.getElementById(id);
 function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
 function fmtDist(k){return k<1?Math.round(k*1000)+' m':k.toFixed(1)+' km';}
 function gmapLink(lat,lng,mode){return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode='+(mode||'walking');}
+function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
 async function boot(){
   try{
-    const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json'),fetch('data/trip/ysm_food.json')]);
+    const [a,b]=await Promise.all([fetch('data/trip/ysm_spots.json?v=4'),fetch('data/trip/ysm_food.json?v=4')]);
     SPOTS=await a.json();FOOD=await b.json();
+    $('st').textContent=$('st').textContent;
     render();
-  }catch(e){document.getElementById('st').textContent='資料載入失敗：'+e;}
+  }catch(e){$('st').textContent='資料載入失敗：'+e;}
 }
 function locate(){
-  const st=document.getElementById('st');
+  const st=$('st');
   if(!navigator.geolocation){st.textContent='此瀏覽器不支援定位';return;}
   st.innerHTML='⏳ 定位中…';
-  if(watch)navigator.geolocation.clearWatch(watch);
+  if(window._w)navigator.geolocation.clearWatch(window._w);
   let lastT=0,lastLat=0,lastLng=0;
-  watch=navigator.geolocation.watchPosition(p=>{
+  window._w=navigator.geolocation.watchPosition(p=>{
     const now=Date.now();
     const d=haversine(lastLat,lastLng,p.coords.latitude,p.coords.longitude);
-    if(now-lastT<30000 && d<0.05) return; // 節流：30 秒內且移動 <50m 不重渲染
+    if(now-lastT<30000&&d<0.05)return;
     lastT=now;lastLat=p.coords.latitude;lastLng=p.coords.longitude;
     cur=p.coords;
-    document.getElementById('st').innerHTML='<span class="lb-green">GPS 連線中</span> 精度 ±'+Math.round(p.coords.accuracy)+' m｜'+new Date(p.timestamp).toLocaleTimeString('zh-TW');
-    document.getElementById('mini').classList.add('on');
+    st.innerHTML='<span class="lb-green">GPS 連線中</span> 精度 ±'+Math.round(p.coords.accuracy)+' m｜'+new Date(p.timestamp).toLocaleTimeString('zh-TW');
     render();
-  },e=>{document.getElementById('st').textContent=e.code===1?'🚫 位置權限被拒——請到設定→Safari→位置→允許，然後重試。':'❌ '+e.message;},{enableHighAccuracy:true,maximumAge:5000,timeout:25000});
+  },e=>{st.textContent=e.code===1?'🚫 位置權限被拒——設定→Safari→位置→允許後重試。':'❌ '+e.message;},{enableHighAccuracy:true,maximumAge:5000,timeout:25000});
+}
+function toggleIntro(){
+  const el=$('aIntro');
+  const clamped=el.classList.contains('clamp');
+  el.classList.toggle('clamp',!clamped);
+  $('aMore').textContent=clamped?'⋯ 展開全文':'收起 ▲';
 }
 function render(){
   const cx=cur?cur.latitude:DEF.lat, cy=cur?cur.longitude:DEF.lng;
-  const scope=gpsOn?'GPS 即時':'預設・二子坪';
-  document.getElementById('spotScope').textContent=scope;
-  document.getElementById('foodScope').textContent=scope;
-  // bounding box 預篩（±0.15 度 ≈ 16km 內）＋近點全算
+  const scopeTxt=gpsOn?'GPS 即時':'預設・二子坪';
+  $('spotScope').textContent=scopeTxt;
+  $('foodScope').textContent=scopeTxt;
   const box=SPOTS.filter(s=>Math.abs(s.lat-cx)<0.15&&Math.abs(s.lng-cy)<0.15)
     .map(s=>Object.assign({},s,{k:haversine(cx,cy,s.lat,s.lng)})).sort((a,b)=>a.k-b.k);
-  // 抵達 hysteresis：300m 進、500m 出
-  const box2=document.getElementById('arriveBox');
-  const kmNearest=box.length?box[0].k:999;
-  if(gpsOn&&inZone){
-    if(haversine(cx,cy,inZone.lat,inZone.lng)*1000>R_OUT) inZone=null;
+  // 抵達 hysteresis：600m 進、800m 出
+  if(inZone){
+    const dNow=haversine(cx,cy,inZone.lat,inZone.lng)*1000;
+    if(dNow>R_OUT){inZone=null;}
   }
-  if(gpsOn&&!inZone&&box.length&&kmNearest*1000<R_IN){
+  if(!inZone&&box.length&&box[0].k*1000<R_IN){
     inZone=box[0];
-    if(!visited.has(inZone.name)){visited.add(inZone.name);localStorage.setItem('ysmVisited',JSON.stringify([...visited]));}
+    if(!visited.has(inZone.name)){visited.add(inZone.name);localStorage.setItem('ysmVisited',JSON.stringify(Array.from(visited)));}
   }
-  const show=gpsOn?(inZone||null):null;
-  if(show){
-    box2.style.display='block';
-    document.getElementById('aTag').textContent='🎉 你現在在這附近｜'+fmtDist(haversine(cx,cy,show.lat,show.lng));
-    document.getElementById('aNm').textContent=show.name;
-    document.getElementById('aD').textContent=(show.area||'')+'｜'+(show.rating?'★'+show.rating:'');
-    document.getElementById('aIntro').textContent=show.desc;
-    document.getElementById('aTips').textContent='💡 點「附近美食」直接看附近有什麼好吃的；點地圖可看照片與更多歷史細節。';
-    document.getElementById('aNav').href=gmapLink(show.lat,show.lng);
-    document.getElementById('aMap').href='https://www.google.com/maps/search/?api=1&query='+show.lat+','+show.lng;
-    document.getElementById('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+show.lat+','+show.lng+',16z';
-  }else{box2.style.display='none';}
-  document.getElementById('nearList').innerHTML=box.slice(0,10).map(s=>
-  '<div class="item"><div><div class="nm">'+(visited.has(s.name)?'✅ ':'')+s.name+'</div><div class="meta">'+(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
+  const ab=$('arriveBox');
+  if(inZone){
+    ab.style.display='block';
+    const dNow=haversine(cx,cy,inZone.lat,inZone.lng);
+    $('aTag').textContent='🎉 你現在在這附近｜'+fmtDist(dNow);
+    $('aNm').textContent=inZone.name;
+    $('aD').textContent=(inZone.area||'')+'｜'+(inZone.rating?'★'+inZone.rating:'');
+    const img=$('aImg');
+    if(inZone.image){img.src=inZone.image;img.style.display='block';}else{img.style.display='none';}
+    const introEl=$('aIntro');
+    const fullText=esc(inZone.desc)||'（暫無介紹——點地圖看更多）';
+    introEl.innerHTML=fullText;
+    if(fullText.length>160){introEl.classList.add('clamp');$('aMore').style.display='inline-block';$('aMore').textContent='⋯ 展開全文';}
+    else{introEl.classList.remove('clamp');$('aMore').style.display='none';}
+    let chips='';
+    if(inZone.fee)chips+='<span class="chip fee">🎫 '+esc(inZone.fee)+'</span>';
+    (inZone.tags||[]).slice(0,4).forEach(t=>{chips+='<span class="chip">'+esc(t)+'</span>';});
+    $('aChips').innerHTML=chips;
+    $('aNav').href=gmapLink(inZone.lat,inZone.lng);
+    $('aMap').href=inZone.web||('https://www.google.com/maps/search/?api=1&query='+inZone.lat+','+inZone.lng);
+    $('aFood').href='https://www.google.com/maps/search/'+encodeURIComponent('餐廳')+'/@'+inZone.lat+','+inZone.lng+',16z';
+  }else{ab.style.display='none';}
+  $('nearList').innerHTML=box.slice(0,10).map(s=>
+  '<div class="item"><div><div class="nm">'+(visited.has(s.name)?'✅ ':'')+esc(s.name)+'</div><div class="meta">'+esc(s.area||'')+(s.rating?'｜★'+s.rating:'')+'</div></div>'+
   '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(s.k<1?'close':'')+'">'+fmtDist(s.k)+'</span>'+
   '<a class="map-btn" target="_blank" href="'+gmapLink(s.lat,s.lng)+'">帶我去</a></div></div>').join('');
   const fw=FOOD.map(f=>Object.assign({},f,{k:haversine(cx,cy,f.lat,f.lng)})).sort((a,b)=>a.k-b.k);
-  document.getElementById('foodList').innerHTML=fw.slice(0,12).map(f=>
-  '<div class="item"><div><div class="nm">'+f.name+'</div><div class="meta">'+f.rating+'★ '+f.reviews+'則｜'+f.addr+'</div></div>'+
+  $('foodList').innerHTML=fw.slice(0,12).map(f=>
+  '<div class="item"><div><div class="nm">'+esc(f.name)+'</div><div class="meta">'+f.rating+'★ '+f.reviews+'則｜'+esc(f.addr||'')+'</div></div>'+
   '<div style="display:flex;gap:8px;align-items:center;"><span class="dist '+(f.k<1?'close':'')+'">'+fmtDist(f.k)+'</span>'+
   '<a class="map-btn" target="_blank" href="https://www.google.com/maps/dir/?api=1&destination='+f.lat+','+f.lng+'">帶我去</a></div></div>').join('');
-  if(gpsOn)document.getElementById('mini').innerHTML='GPS ±'+Math.round(cur.accuracy)+'m｜最近：'+(box.length?box[0].name+' '+fmtDist(box[0].k):'—');
+  if(gpsOn&&cur)$('mini').innerHTML='GPS ±'+Math.round(cur.accuracy)+'m｜最近：'+(box.length?esc(box[0].name)+' '+fmtDist(box[0].k):'—');
 }
 boot();
 </script>
