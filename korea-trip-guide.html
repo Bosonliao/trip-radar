@@ -3,82 +3,175 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>首爾清州 GPS 領隊｜行程隨身小助理 V1.1</title>
+<meta name="theme-color" content="#264653">
+<title>首爾清州 GPS 領隊｜行程隨身小助理 V2.1</title>
+<script>/* 深色模式防閃：先手動套舊主題 */try{const t=localStorage.getItem('krTheme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.css">
 <style>
-:root{--teal:#2A9D8F;--navy:#264653;--sand:#E9F5F4;--coral:#E76F51;--yellow:#E9C46A;--white:#fff;}
-*{margin:0;padding:0;box-sizing:border-box;}
-body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--sand);color:var(--navy);line-height:1.5;}
-header{background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);color:#fff;padding:18px 16px 14px;}
+:root{
+ --teal:#2A9D8F;--navy:#264653;--coral:#E76F51;--yellow:#E9C46A;
+ --bg:#E9F5F4;--card:#ffffff;--card2:#F1F8F6;--text:#264653;--sub:#5a6b73;--sub2:#44565e;--stroke:#e4ece9;
+ --shadow:0 2px 10px rgba(38,70,83,.08);
+ --fs-body:15px;--fs-aux:13px; /* V2.1 字級 floor：正文 15px／輔助 13px */
+}
+:root[data-theme=dark]{
+ --bg:#101b19;--card:#1c2a27;--card2:#243530;--text:#d8e8e5;--sub:#93aaa2;--sub2:#bfd4cf;--stroke:#2c3d39;
+ --shadow:0 2px 12px rgba(0,0,0,.45);
+}
+@media(prefers-color-scheme:dark){
+ :root:not([data-theme=light]){
+  --bg:#101b19;--card:#1c2a27;--card2:#243530;--text:#d8e8e5;--sub:#93aaa2;--sub2:#bfd4cf;--stroke:#2c3d39;
+  --shadow:0 2px 12px rgba(0,0,0,.45);
+ }
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,'Segoe UI','Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);line-height:1.5;padding-bottom:72px;} /* V2.1 讓位 SOS bar */
+header{position:relative;background:linear-gradient(135deg,var(--navy) 0%,var(--teal) 100%);color:#fff;padding:18px 16px 14px;}
 header h1{font-size:20px;font-weight:700;}
-header .sub{font-size:12.5px;opacity:.85;margin-top:3px;}
-.gps-box{margin:12px 12px 0;background:var(--white);border-radius:14px;padding:14px 16px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.btn{border:0;border-radius:10px;padding:10px 16px;font-size:15px;font-weight:700;cursor:pointer;}
-.btn-main{background:var(--coral);color:#fff;width:100%;}
-.btn-main:active{opacity:.85;}
-.gps-status{margin-top:10px;font-size:13px;color:#5a6b73;}
-.locate-badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:700;}
+header .sub{font-size:var(--fs-aux);opacity:.85;margin-top:3px;}
+#btnTheme{position:absolute;top:10px;right:10px;border:0;border-radius:99px;min-width:42px;min-height:42px;font-size:18px;cursor:pointer;background:rgba(255,255,255,.18);color:#fff;}
+.theme-dark .leaflet-tile{filter:brightness(.75) saturate(.8);}
+/* ===== V2.1 首屏任務指揮卡（header 直下、全頁最高視覺權重） ===== */
+.cmd-card{margin:10px 12px 0;background:var(--card);border:2px solid var(--teal);border-radius:14px;padding:11px 14px 13px;box-shadow:0 4px 18px rgba(42,157,143,.22);}
+#dayBanner{font-size:15px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+#dayBanner .chg{color:var(--teal);font-weight:700;font-size:var(--fs-aux);text-decoration:underline;cursor:pointer;white-space:nowrap;}
+.cc-now{margin-top:8px;font-size:var(--fs-body);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.cc-badge{display:inline-block;border-radius:99px;padding:3px 10px;font-size:var(--fs-aux);font-weight:800;white-space:nowrap;flex:none;}
+.badge-punch{background:#e8ecef;color:#78868d;}
+.badge-go{background:var(--yellow);color:var(--navy);}
+.badge-here{background:var(--coral);color:#fff;}
+.badge-done{background:var(--teal);color:#fff;}
+.cc-cta{margin-top:10px;}
+.cc-next{font-size:var(--fs-aux);color:var(--sub);font-weight:700;}
+.cc-next b{color:var(--text);font-weight:800;}
+.cc-main{display:block;width:calc(100% - 0px);margin-top:6px;border:0;border-radius:12px;background:var(--coral);color:#fff;padding:13px 14px;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(231,111,81,.35);}
+.cc-main:active{opacity:.85;}
+.cc-main.cc-finish{background:var(--teal);box-shadow:0 6px 16px rgba(42,157,143,.30);}
+.cc-main.cc-idle{background:var(--navy);box-shadow:none;}
+.cc-finish-idle{background:var(--card2);color:var(--sub);box-shadow:none;border:1.5px dashed var(--stroke);cursor:default;}
+.near-hint{margin-top:8px;font-size:var(--fs-aux);color:var(--coral);font-weight:700;animation:nearFade .3s;}
+.gps-status{margin-top:9px;font-size:var(--fs-aux);color:var(--sub);}
+.locate-badge{display:inline-block;padding:2px 10px;border-radius:99px;font-size:var(--fs-aux);font-weight:700;}
 .lb-green{background:#d8f3e8;color:#1a7f5c;}
-.arrive{margin:12px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.18);background:var(--white);border:2px solid var(--coral);}
-.arrive-head{background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:13px 16px 11px;}
-.arrive-head .t{font-size:12.5px;font-weight:700;opacity:.92;}
+/* ===== 抵達卡（× 關閉＝不打卡不計進度） ===== */
+.arrive{margin:10px 12px 0;border-radius:16px;overflow:hidden;box-shadow:0 4px 16px rgba(38,70,83,.18);background:var(--card);border:2px solid var(--coral);}
+.arrive-head{position:relative;background:linear-gradient(135deg,var(--coral),#f4a261);color:#fff;padding:13px 16px 11px;}
+.arrive-close{position:absolute;top:9px;right:10px;z-index:5;border:0;border-radius:99px;min-width:38px;min-height:38px;background:rgba(255,255,255,.25);color:#fff;font-size:16px;font-weight:800;cursor:pointer;line-height:1;}
+.arrive-head .t{font-size:var(--fs-aux);font-weight:700;opacity:.92;padding-right:44px;}
 .arrive-head .nm{font-size:21px;font-weight:800;margin-top:2px;}
-.arrive-head .d{font-size:12px;opacity:.9;margin-top:2px;}
+.arrive-head .d{font-size:var(--fs-aux);opacity:.9;margin-top:2px;}
 .arrive-body{padding:12px 16px 14px;}
-.arrive-body .intro{font-size:13.8px;color:#33454e;}
-.arrive-body .tips{margin-top:9px;background:var(--sand);border-radius:10px;padding:9px 11px;font-size:12.5px;color:#44565e;}
+.arrive-body .intro{font-size:var(--fs-body);color:var(--sub2);}
+.arrive-body .tips{margin-top:9px;background:var(--card2);border-radius:10px;padding:9px 11px;font-size:var(--fs-aux);color:var(--sub);}
+.done-btn{margin-top:11px;width:100%;border:0;background:var(--teal);color:#fff;border-radius:12px;padding:12px;font-size:15.5px;font-weight:800;cursor:pointer;box-shadow:0 6px 16px rgba(42,157,143,.30);}
+.done-btn.done{background:var(--card2);color:var(--sub);box-shadow:none;border:1.5px dashed var(--stroke);cursor:default;}
 .arrive-acts{display:flex;gap:8px;margin-top:11px;}
-.arrive-acts a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;border-radius:9px;padding:9px 4px;}
-.a-map{background:var(--teal);color:#fff;}
-.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
-.a-food{background:#fff;color:var(--coral);border:1.5px solid var(--coral);}
-.progress-row{display:flex;gap:6px;margin:0 12px 6px;overflow-x:auto;}
-.prog-chip{font-size:11.5px;border-radius:99px;padding:4px 10px;background:#e4ede9;color:#6b7f78;font-weight:700;white-space:nowrap;}
+.arrive-acts a{flex:1;text-align:center;text-decoration:none;font-size:var(--fs-aux);font-weight:700;border-radius:9px;padding:9px 4px;}
+.a-nav{background:var(--card);color:var(--teal);border:1.5px solid var(--teal);}
+.a-map{background:var(--yellow);color:var(--navy);}
+/* ===== V2.1 集合模式高對比卡（抵達卡內＋每張今日景點卡） ===== */
+.asm-card{margin-top:11px;background:var(--card2);border:1.5px dashed var(--teal);border-radius:12px;padding:10px 12px;}
+.asm-t{font-size:var(--fs-aux);font-weight:800;color:var(--teal);}
+.asm-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;margin-top:6px;font-size:var(--fs-body);}
+.asm-grid .k{color:var(--sub2);font-weight:700;}
+.asm-grid .v{font-weight:800;color:var(--coral);}
+.next-card{margin:10px 12px 0;display:flex;align-items:center;gap:10px;background:var(--card);border:1.5px solid var(--teal);border-radius:14px;padding:11px 13px;box-shadow:var(--shadow);cursor:pointer;}
+.next-card .nc-t{font-size:var(--fs-aux);font-weight:800;color:var(--teal);}
+.next-card .nc-nm{font-size:var(--fs-body);font-weight:800;margin-top:1px;}
+.next-card .nc-m{font-size:var(--fs-aux);color:var(--sub);margin-top:2px;}
+.next-card .nc-go{margin-left:auto;flex:none;text-align:center;text-decoration:none;font-size:var(--fs-aux);font-weight:700;border-radius:9px;padding:9px 12px;background:var(--teal);color:#fff;}
+.prog-row{margin:12px 12px 0;padding:11px 13px;background:var(--card);border-radius:12px;box-shadow:var(--shadow);}
+.prog-row .pt{font-size:var(--fs-aux);font-weight:800;margin-bottom:7px;}
+.progress-row{display:flex;gap:6px;overflow-x:auto;}
+.prog-chip{font-size:var(--fs-aux);border-radius:99px;padding:4px 10px;background:#e4ede9;color:#6b7f78;font-weight:700;white-space:nowrap;}
+:root[data-theme=dark] .prog-chip{background:var(--card2);color:var(--sub);}
 .prog-chip.done{background:var(--teal);color:#fff;}
-.sec-title{margin:18px 14px 8px;font-size:16px;font-weight:800;display:flex;align-items:center;gap:6px;}
-.near-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-bottom:1px solid #eef2f2;background:#fff;}
-.near-item:last-child{border-bottom:0;}
-.near-item .nm{font-weight:700;font-size:15px;}
-.near-item .meta{font-size:12px;color:#7a8b92;margin-top:2px;}
-.dist{font-weight:800;color:var(--teal);font-size:14px;white-space:nowrap;}
-.dist.close{color:var(--coral);}
-.map-btn{background:var(--sand);border:1px solid var(--teal);color:var(--teal);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;text-decoration:none;}
-.near-wrap{margin:8px 12px;background:var(--white);border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 12px;}
-.q-card{background:var(--white);border-radius:12px;padding:11px 6px;text-align:center;text-decoration:none;color:var(--navy);box-shadow:0 2px 8px rgba(38,70,83,.07);cursor:pointer;}
+.map-sec{margin:10px 12px 0;background:var(--card);border-radius:14px;overflow:hidden;box-shadow:var(--shadow);}
+.map-bar{display:flex;align-items:center;gap:8px;padding:11px 13px;cursor:pointer;font-size:14px;font-weight:800;}
+.map-bar .map-note{margin-left:auto;font-size:var(--fs-aux);font-weight:600;color:var(--sub);}
+.map-toggle{border:1.5px solid var(--teal);color:var(--teal);background:transparent;border-radius:99px;padding:5px 12px;font-size:var(--fs-aux);font-weight:800;cursor:pointer;flex:none;}
+.map-sec.open .map-bar{border-bottom:1px solid var(--stroke);}
+#minimap{height:340px;display:none;}
+.map-sec.open #minimap{display:block;}
+.quick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 12px;}
+.q-card{background:var(--card);border-radius:12px;padding:11px 6px;text-align:center;text-decoration:none;color:var(--text);box-shadow:var(--shadow);cursor:pointer;}
 .q-card .ic{font-size:22px;}
-.q-card .tt{font-size:12px;font-weight:700;margin-top:4px;}
-.day-tabs{display:flex;gap:6px;margin:6px 12px 0;overflow-x:auto;padding-bottom:6px;}
-.day-tab{border:1.5px solid var(--teal);color:var(--teal);background:#fff;border-radius:99px;padding:7px 13px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.q-card .tt{font-size:var(--fs-aux);font-weight:700;margin-top:4px;}
+.info-card{margin:10px 12px;background:var(--card);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);}
+.info-card h3{font-size:var(--fs-body);font-weight:800;margin-bottom:6px;display:flex;gap:6px;align-items:center;}
+.info-card p{font-size:var(--fs-body);color:var(--sub2);}
+.info-card a{color:var(--teal);font-weight:700;}
+.hotel-note{color:var(--coral)!important;font-weight:700;}
+.nearby-line{margin-top:5px;}
+.nearby-line a{font-size:var(--fs-aux);}
+.day-tabs{display:flex;gap:6px;margin:8px 12px 0;overflow-x:auto;padding-bottom:6px;}
+.day-tab{border:1.5px solid var(--teal);color:var(--teal);background:var(--card);border-radius:99px;padding:7px 13px;font-size:var(--fs-aux);font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0;}
 .day-tab.on{background:var(--teal);color:#fff;}
-.spot{margin:8px 12px;background:var(--white);border-radius:14px;padding:13px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
+.day-tab .dd{font-style:normal;font-size:var(--fs-aux);opacity:.85;margin-left:3px;}
+/* ===== V2.1 行程卡：當日=全卡高對比；非當日=折疊一行（灰階） ===== */
+.spot{margin:8px 12px;background:var(--card);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);}
+.spot.today{box-shadow:var(--shadow),inset 4px 0 0 var(--coral);border:1.5px solid var(--stroke);}
+.spot-fold{background:var(--card);border:1.5px solid var(--stroke);box-shadow:none;padding:10px 13px;}
+.spot-fold .spot-head{cursor:pointer;}
+.spot-fold .nm{color:var(--sub);font-weight:700;}
+.spot-fold .fold-arrow{margin-left:auto;color:var(--sub);font-size:14px;}
+.spot-fold .spot-body{display:none;}
+.spot-fold.open .spot-body{display:block;padding-top:9px;}
 .spot-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
-.spot-head .nm{font-weight:800;font-size:15.5px;}
-.spot-head .tag{font-size:11px;background:var(--sand);color:var(--teal);border-radius:99px;padding:2px 9px;font-weight:700;white-space:nowrap;}
+.spot-head .nm{font-weight:800;font-size:15.5px;color:var(--text);}
+.spot-head .tag{font-size:var(--fs-aux);background:var(--card2);color:var(--teal);border-radius:99px;padding:2px 9px;font-weight:700;white-space:nowrap;flex:none;}
 .tag.drama{background:#f3e8fd;color:#8e44ad;}
-.spot-desc{font-size:12.8px;color:#5a6b73;margin-top:6px;display:none;}
-.spot.open .spot-desc{display:block;}
+:root[data-theme=dark] .tag.drama{background:#3a2b45;color:#c39bd3;}
+.todaypill{display:inline-block;font-size:var(--fs-aux);background:var(--coral);color:#fff;border-radius:99px;padding:2px 8px;font-weight:800;white-space:nowrap;margin-right:4px;}
+.opt-badge{display:inline-block;font-size:var(--fs-aux);background:var(--yellow);color:var(--navy);border-radius:99px;padding:2px 8px;font-weight:800;white-space:nowrap;margin-right:4px;}
+.spot-desc{font-size:var(--fs-body);color:var(--sub);margin-top:6px;}
+.spot-desc .gd{display:inline-block;font-size:var(--fs-aux);font-weight:800;color:var(--teal);margin-top:6px;}
 .spot-actions{display:flex;gap:8px;margin-top:9px;}
-.spot-actions a{flex:1;text-align:center;text-decoration:none;font-size:13px;font-weight:700;border-radius:9px;padding:8px 6px;}
-.a-nav{background:#fff;color:var(--teal);border:1.5px solid var(--teal);}
-.info-card{margin:8px 12px;background:var(--white);border-radius:14px;padding:13px 15px;box-shadow:0 2px 10px rgba(38,70,83,.08);}
-.info-card h3{font-size:14.5px;font-weight:800;margin-bottom:6px;display:flex;gap:6px;align-items:center;}
-.info-card p{font-size:12.8px;color:#44565e;}
-footer{text-align:center;font-size:11.5px;color:#8aa0a8;padding:18px 0 26px;}
+.spot-actions a{flex:1;text-align:center;text-decoration:none;font-size:var(--fs-aux);font-weight:700;border-radius:9px;padding:9px 6px;}
+.spot-actions .main-go{background:var(--teal);color:#fff;}
+.spot-actions .back-hotel{background:var(--card);color:var(--teal);border:1.5px solid var(--teal);}
+.alt-nav{margin-top:7px;font-size:var(--fs-aux);color:var(--sub);}
+.alt-nav a{color:var(--sub2);text-decoration:underline;font-size:var(--fs-aux);}
+.spot-done{margin-top:9px;width:100%;border:1.5px solid var(--teal);background:transparent;color:var(--teal);border-radius:10px;padding:9px;font-size:var(--fs-body);font-weight:800;cursor:pointer;}
+.spot-done.done{border:1.5px dashed var(--stroke);color:var(--sub);background:var(--card2);cursor:default;}
+/* ===== V2.1 旅行救命列（sticky 底部一鍵撥號） ===== */
+.sos-bar{position:fixed;left:0;right:0;bottom:0;z-index:1500;display:flex;gap:6px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:var(--navy);box-shadow:0 -4px 14px rgba(0,0,0,.28);}
+.sos-bar a{flex:1;text-align:center;color:#fff;text-decoration:none;border-radius:10px;padding:11px 2px;font-weight:800;font-size:var(--fs-body);min-height:44px;white-space:nowrap;}
+.s-1330{background:var(--coral);}
+.s-112{background:#8E44AD;}
+.s-119{background:#D35400;}
+.s-hotel{background:var(--teal);}
+.s-guide{background:#5B7085;}
+footer{text-align:center;font-size:var(--fs-aux);color:var(--sub);padding:18px 0 26px;}
+.modal{display:none;position:fixed;inset:0;background:rgba(16,27,25,.55);z-index:2000;align-items:center;justify-content:center;padding:20px;}
+.modal-card{background:var(--card);border-radius:18px;max-width:340px;width:100%;padding:20px 18px 16px;box-shadow:0 10px 40px rgba(0,0,0,.3);text-align:center;}
+.modal-card h3{font-size:17px;font-weight:800;}
+.modal-card .md-sub{font-size:var(--fs-aux);color:var(--sub);margin:8px 0 14px;}
+.md-btn{display:block;width:100%;margin:8px 0;border:1.5px solid var(--teal);color:var(--teal);background:var(--card2);border-radius:12px;padding:14px;font-size:15.5px;font-weight:800;cursor:pointer;}
+.md-btn:first-of-type{background:var(--coral);border-color:var(--coral);color:#fff;}
+.md-skip{display:inline-block;margin-top:8px;font-size:var(--fs-aux);color:var(--sub);text-decoration:underline;cursor:pointer;}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.min.js"></script>
 </head>
 <body>
 <header>
   <h1>🇰🇷 首爾清州 5 日｜GPS 領隊小助理</h1>
   <div class="sub">超值玩美首爾清州５日〈彩妝一站〉· 出發 11/10.17.24 · 跟團開定位，一到景點自動出現介紹</div>
+  <button id="btnTheme" onclick="toggleTheme()" aria-label="深淺色切換">🌙</button>
 </header>
 
-<div class="gps-box">
-  <button class="btn btn-main" id="btnGps" onclick="locate()">📍 開啟 GPS（一到景點自動帶出介紹）</button>
-  <div class="gps-status" id="gpsStatus">還沒定位——點上面的按鈕，允許位置權限後，每到一個景點就會自動出現它的介紹。</div>
+<!-- V2.1 首屏任務指揮卡：DAY｜日期｜現在｜下一件事（單一主 CTA） -->
+<div class="cmd-card" id="cmdCard">
+  <div id="dayBanner">🗓️ 載入中…</div>
+  <div class="cc-now" id="ccNow"></div>
+  <div class="cc-cta" id="ccCta"></div>
+  <div class="near-hint" id="nearHint" style="display:none;"></div>
+  <div class="gps-status" id="gpsStatus">還沒定位——按下面的「開啟 GPS」，允許位置權限後，每到一個景點就會自動出現介紹。</div>
 </div>
 
 <div class="arrive" id="arriveBox" style="display:none;">
   <div class="arrive-head">
+    <button class="arrive-close" id="arriveClose" onclick="closeArrive()" aria-label="關閉（不打卡）">×</button>
     <div class="t" id="arriveTag">🎉 抵達景點</div>
     <div class="nm" id="arriveNm"></div>
     <div class="d" id="arriveDist"></div>
@@ -86,16 +179,40 @@ footer{text-align:center;font-size:11.5px;color:#8aa0a8;padding:18px 0 26px;}
   <div class="arrive-body">
     <div class="intro" id="arriveIntro"></div>
     <div class="tips" id="arriveTips"></div>
+    <button class="done-btn" id="arriveDone">✅ 我到了（打卡）</button>
     <div class="arrive-acts">
-      <a class="a-nav" id="arriveNav" target="_blank">🚶 帶我去</a>
-      <a class="a-map" target="_blank" id="arriveMap">🗺️ 地圖開啟</a>
-      <a class="a-food" onclick="nearSearch('韓式餐廳')">🍽️ 附近美食</a>
+      <a class="a-nav" id="arriveNav" target="_blank" rel="noopener">🚶 步行</a>
+      <a class="a-nav" id="arriveTransit" target="_blank" rel="noopener">🚇 大眾運輸</a>
+      <a class="a-map" id="arriveMap" target="_blank" rel="noopener">🗺️ 地圖</a>
     </div>
+    <div id="arriveAsm"></div>
   </div>
 </div>
 
-<div id="progRow" style="margin:12px 12px 0;display:none;"></div>
+<div class="next-card" id="nextCard" style="display:none;">
+  <div>
+    <div class="nc-t">🧭 下一站</div>
+    <div class="nc-nm" id="nsNm"></div>
+    <div class="nc-m" id="nsMeta"></div>
+  </div>
+  <a class="nc-go" id="nsGo" target="_blank" rel="noopener" onclick="event.stopPropagation()">🚶 步行</a>
+</div>
 
+<div class="prog-row" id="progRow"></div>
+
+<div class="map-sec" id="mapSec">
+  <div class="map-bar" id="mapBar" onclick="toggleMap()">
+    <span>🗺️ 行程總覽地圖</span>
+    <span class="map-note" id="mapNote">19 景點＋2 飯店一覽（收合省流量）</span>
+    <button class="map-toggle" id="mapToggle" onclick="event.stopPropagation();toggleMap()">展開 ▾</button>
+  </div>
+  <div id="minimap"></div>
+</div>
+
+<div class="day-tabs" id="dayTabs"></div>
+<div id="spotList"></div>
+
+<!-- V2.1：快捷列移到今日行程列表之後＋新增叫車卡 -->
 <div class="quick-grid">
   <a class="q-card" onclick="nearSearch('地鐵站')"><div class="ic">🚇</div><div class="tt">附近地鐵站</div></a>
   <a class="q-card" onclick="nearSearch('換錢所')"><div class="ic">💱</div><div class="tt">附近換錢所</div></a>
@@ -103,30 +220,55 @@ footer{text-align:center;font-size:11.5px;color:#8aa0a8;padding:18px 0 26px;}
   <a class="q-card" onclick="nearSearch('藥妝店')"><div class="ic">💊</div><div class="tt">藥妝店</div></a>
   <a class="q-card" onclick="nearSearch('韓式餐廳')"><div class="ic">🍲</div><div class="tt">附近美食</div></a>
   <a class="q-card" onclick="nearSearch('咖啡廳')"><div class="ic">☕</div><div class="tt">咖啡廳</div></a>
+  <a class="q-card" href="https://taxi.kakao.com" target="_blank" rel="noopener"><div class="ic">🚕</div><div class="tt">叫車 Kakao T</div></a>
 </div>
 
 <div class="info-card">
   <h3>🚄 交通速查</h3>
-  <p>・<b>T-money 卡</b>：便利店買卡儲值，地鐵/公車/便利店通用（地鐵基本 ₩1,400）。</p>
+  <p>・<b>T-money 卡</b>：便利店買卡儲值，地鐵/公車/便利店通用（地鐵基本 ₩1,400、市區公車 ₩1,500；卡片本身售價依現場標示）。</p>
   <p>・<b>機場快線 AREX</b>：仁川機場 ⇄ 首爾站直達 43 分（₩9,500）；清州機場無地鐵，本行程多為遊覽車接送。</p>
-  <p>・<b>導航 App</b>：韓國境內用 <b>Naver Map</b> 或 <b>KakaoMap</b>（比 Google 準）。</p>
-  <p>・<b>Kakao T</b>：叫車 App（計程車基本 ₩4,800 起）。</p>
+  <p>・<b>導航 App</b>：韓國境內用 <b>Naver Map</b> 或 <b>KakaoMap</b>（比 Google 準）。每個景點卡上的按鈕會直接幫你開好。</p>
+  <p>・<b>🚕 Kakao T</b>：叫車 App（計程車基本 ₩4,800 起）——上面的快捷列也有直達卡。</p>
+  <p>・<b>🚄 KorailTalk</b>：韓國鐵道公社官方 App，KTX／一般列車訂票與查詢（本團以遊覽車接送為主，自由活動時段可用）。</p>
 </div>
+
+<div class="info-card" id="hotelCard"></div>
 
 <div class="info-card">
   <h3>💡 旅行必備小卡</h3>
-  <p>・<b>觀光熱線 1330</b>：中文旅遊諮詢｜報警 <b>112</b>／救護火警 <b>119</b>。</p>
+  <p>・<b>觀光熱線 1330</b>：中文旅遊諮詢（畫面最下方的救命列可直接撥）｜報警 <b>112</b>／救護火警 <b>119</b>。</p>
+  <p>・<b>💱 匯率</b>：1 TWD ≈ <b>42.1 KRW</b>（open.er-api.com 2026-10-07 快照）——逐日波動，估預算以即時匯率 App 為準。</p>
   <p>・<b>退稅</b>：單店滿 ₩15,000 可退（明洞/百貨退稅機或機場）。</p>
   <p>・<b>插頭</b>：220V 圓孔雙腳（C 型），需轉接頭。</p>
   <p>・<b>駐韓台北代表部</b>：+82-2-3783-7900（護照遺失／急難救助）。</p>
 </div>
 
-<div class="day-tabs" id="dayTabs"></div>
-<div id="spotList"></div>
+<footer>行程資料：易遊網 CJJ0526CA 超值玩美首爾清州５日｜novamind.tw V2.1<br>座標來源 OpenStreetMap・導航以 Naver Map／KakaoMap 為主（Google 備用）</footer>
 
-<footer>行程資料：易遊網 CJJ0526CA 超值玩美首爾清州５日｜novamind.tw V1.1<br>座標來源 OpenStreetMap・導航以 Naver/Google 為準</footer>
+<!-- V2.1 旅行救命列：一鍵撥號 -->
+<div class="sos-bar" id="sosBar">
+  <a class="s-1330" href="tel:1330">🆘 1330</a>
+  <a class="s-112" href="tel:112">🚔 112</a>
+  <a class="s-119" href="tel:119">🚑 119</a>
+  <a class="s-hotel" id="sosHotel" target="_blank" rel="noopener" href="#">🏨 飯店</a>
+  <a class="s-guide" id="sosGuide" href="tel:" onclick="if(this.getAttribute('href')==='tel:'){event.preventDefault();alert('導遊電話請向領隊取得後填入。');}return;">📢 導遊</a>
+</div>
+
+<div class="modal" id="startModal">
+  <div class="modal-card">
+    <h3>🗓️ 你是哪天出發？</h3>
+    <div class="md-sub">選好之後，這頁會自動顯示「今天玩到第幾天」、當日景點自動排在最上面。</div>
+    <div id="mdBtns"></div>
+    <span class="md-skip" onclick="closeStart()">先不用，先逛</span>
+  </div>
+</div>
 
 <script>
+/* ============ 資料（19 景點＝18 已實查＋Day5 東大門歷史文化公園採選點；零自造） ============ */
+/* V2.1 深度資料：由 korea-trip-v2-data.json 對位注入（verbatim，零自造） */
+const SPOT_DEEP={"清州國際機場": {"h": "清州國際機場是忠清北道唯一的國際機場、韓國中部的空中門戶，位於清州市北郊。近年因廉航（含易斯達航空的桃園—清州線）擴充，成為台灣團體避開仁川人潮、快速進出首爾圈的替代入口；本行程去程 ZE782 02:00 自桃園起飛、05:30 抵清州，回程 Day5 23:35 ZE781 離境。", "t": "入境動線單純：落地→提領行李→上遊覽車出發，停留時間最短，先上洗手間再集合。回程日預留至少2小時：單店滿₩15,000可辦退稅（退稅櫃檯＋安檢＋免稅店）。拍照點：航站正面「CHEONGJU INTERNATIONAL AIRPORT」標誌牌與行李提領區的直指印刷主題展示。", "s": ["https://zh.wikipedia.org/wiki/清州國際機場", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/（參考航班ZE782/ZE781時刻）"]}, "壽岩谷壁畫村": {"h": "被稱為「청주의 마지막 달동네（清州最後的山頂貧民村）」：韓戰後難民在城安山上定居形成聚落，2000年代以後透過住居環境改善事業轉型，2007年公共美術計畫為巷弄彩繪後開始知名；2009-2011年間《카인과 아벨》《제빵왕 김탁구（麵包王金卓求）》《영광의 재인》等劇在此取景，一舉成為清州代表性景點。", "t": "從수암路58號一帶入口沿上坡巷弄逛起，壁畫牆面＋特色立牌一路到屋頂咖啡街，全程約1-1.5小時；清州市官方部落格記載「約15分鐘持續上坡」可到수암골展望台，俯瞰整個清州市區。拍照點：各巷弄壁畫（月亮主題）＋展望台俯瞰；入場免費、詢問可撥043-253-1330。", "s": ["https://www.cheongju.go.kr/ktour/selectClturCntnts2019View.do?key=20321&clturCntntsNo=2080（청주시청 관광頁：清州最後的달동네、카인과아벨/제빵왕김탁구/영광의재인取景沿革）", "https://korean.visitkorea.or.kr/detail/ms_detail.do?cotid=647f2fd4-e5ac-4987-8e03-25240f8d31cc（구석구석官方頁：2007公共美術計畫、地址충북 청주시 상당구 수암로 58、電話043-253-1330）", "https://blog.naver.com/cjcityblog/223090015298（清州市官方部落格：벽화마을/루프탑카페거리/드라마길/전망대 구성＋15分上坡）", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "清州中央公園": {"h": "清州市中心最老牌的市民公園，長期承辦音樂會與發表會。2023年《黑暗榮耀》在此留下名場面——文同珢教朱如炡（李到晛飾）下棋，劇組以春夏秋冬四季呈現時間流逝，讓公園四季景色隨劇集爆紅；行程介紹另提及電影《20世紀少女》也在附近取景。", "t": "公園規模不大：繞一圈30-40分即可，秋冬（本團11月成行）楓葉＋銀杏最漂亮。散步後直接步行接城安街商圈與六街綜合市場（步行10分內）。拍照點：湖畔步道與劇中取景的長椅一帶；圍棋場景確切拍攝位置無官方標示，以現場為準。", "s": ["https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://zh.wikipedia.org/wiki/清州（清州市背景）"]}, "城安街商圈": {"h": "清州的市中心與第一商圈，號稱「清州的明洞」：步行街與地下商場並行，聚集300多家潮流服飾、化妝品店家，另有樂天百貨與3家電影院，一側連接羅德奧街和龍頭寺址鐵幢竿廣場;韓劇《阿爾罕布拉宮的回憶》（玄彬主演）曾在此取景。", "t": "晚餐（行程自理）就在這裡解決：地下街吃街頭小吃→步行街採美妝衣飾→樂天百貨樓上吃美食街；與六街綜合市場一併逛完約1-1.5小時。拍照點：夜間步行街霓虹招牌＋龍頭寺址鐵幢竿廣場（清州古代地標柱）。", "s": ["https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://zh.wikipedia.org/wiki/清州"]}, "水原華城": {"h": "朝鮮後期代表性城廓：華城自八達山（西）沿平緩丘陵（東）修建，全長5,520公尺，設八達門、長安門、蒼龍門、華西門四座城門，加上暗門、水門、空心墩、將台等防守設施；以傳統築城經驗為基礎，運用實學者丁若鏞等人的科學知識並參考中國築城技術，1997年獲UNESCO世界文化遺產登錄。每年秋季的水原華城文化節是例行大型活動。", "t": "遊覽團多從八達門一側進入：登上城牆走一小段（單程20-30分）就能體會世界遺產的氣勢，不用環城一圈。拍照點：八達門石階＋城牆弧線俯瞰水原市區；時間充裕再加長安門。全程預算60-90分，穿好走的鞋；秋季文化節期間週邊管制人多。", "s": ["https://zh.wikipedia.org/wiki/水原華城", "https://ko.wikipedia.org/wiki/수원화성", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "八達門傳統市場": {"h": "水原八達門周邊一帶聚集了9個傳統市場（水原市政府觀光頁「9色傳統市場路線」明載），其中八達門市場乾淨整潔、被譽為「小東大門」，傳統氛圍與現代時尚並存，是採購服飾配飾＋品嘗道地小吃的一站；水原名物「排骨街（갈비골목）」也在附近。", "t": "本團午餐自理（行程頁Day2午：方便美食探索），市場內小吃＋排骨街是最佳解：先買小吃試吃→採買伴手禮→再進排骨街找店。停留40-60分即可接STARFIELD；與八達門世界遺產城門步行串連很近。", "s": ["https://www.suwon.go.kr/sw-www/sw-visitsuwon/sw-visitsuwon-02/sw-visitsuwon-02-03/sw-visitsuwon-02-03-02.jsp（수원관광 9색 전통시장 코스官方頁）", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "STARFIELD水原＋星空圖書館2.0": {"h": "Starfield是新世界集團旗下的大型購物中心品牌（官方站starfield.co.kr）。水原店的「星空圖書館2.0」位於商場4-7樓，共四層樓挑高、宇宙星球裝置與無邊界三維空間設計，是繼COEX星圖書館後的爆紅二級，商場內另有大量餐廳與店鋪。", "t": "直上4-7樓拍全景（挑高中庭＋星球裝置）→往下掃店/吃東西；中午前人少最好拍，假日傍晚容易滿滿人潮。商場美食街/餐廳夠解決自助午餐。停留40-90分。", "s": ["https://www.starfield.co.kr/suwon/main.do（Starfield水原官方站）", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "義王樂天Time Villas Outlet": {"h": "2021年開幕的樂天集團第6家精品outlet「Time Villas（時光別墅）」，位於京畿道義王市白雲湖畔風景區；與一般outlet不同，它強調「在自然中全家戶外購物」，命名不用地名而用「時間在此休息」的概念，規劃為停留型的郊外休閒＋購物複合設施。", "t": "戶外街區：沿湖畔玻璃屋一棟棟逛，名牌與運動品牌折扣是主軸。先到服務台拿樓層圖（或先逛官網樓層圖）再下手；晚餐自理的話商圈內有多家選擇。停留60-120分。拍照點：玻璃屋外觀＋白雲湖畔造景。", "s": ["https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://vacation.eztravel.com.tw/pkgfrn/p/VDR0000001888/CJJ0524ZE4（同系產品行程頁對Time Villas的完整介紹文字）"]}, "恩平韓屋村": {"h": "位於首爾市恩平區、北漢山腳下的大型新型韓屋聚落（韓文：은평한옥마을），以傳統韓屋建築群結合北漢山自然風光聞名，是近年被韓國戲劇鎖定的新取景地——韓劇《暴君的廚師》即在此拍攝；村旁的韓屋咖啡廳（1인1잔：一人一杯）可以坐在傳統格局裡喝咖啡看山。", "t": "與津寬寺相鄰，先逛韓屋村再步行到津寬寺正好：石板巷弄＋韓屋翹簾＋北漢山稜線是主要拍照構圖；韓屋咖啡廳消費自理（每人點至少一杯）。停留40-60分；穿好走的鞋（部分坡道）。", "s": ["https://ko.wikipedia.org/wiki/은평한옥마을", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "津寬寺": {"h": "首爾恩平區北漢山國立公園內的千年古剎（韓文：진관사），行程頁稱其為首爾四大名寺、韓國四大佛院之一；寺方官方網站登載其沿革與文化財資訊。山寺與壯麗山景結合，氛圍寧靜，與恩平韓屋村相鄰步行可達。", "t": "沿山門→一柱門→大雄殿的軸線參觀，40-60分；秋季（本團11月）紅葉季最漂亮。注意：宗教場所說話輕聲，拍照先看僧侶與告示。拍照點：溪谷石橋＋一柱門＋殿簷與北漢山同框。寺內食堂等設施以現場公告為準。", "s": ["https://www.jinkwansa.org/（津寬寺官方網站）", "https://ko.wikipedia.org/wiki/진관사", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "慶熙宮": {"h": "朝鮮王朝的宮殿，位於首爾鍾路區，1616年建成、原為光海君的府邸後改建為宮殿，因位於都城西側被稱為「西闕」；慶熙宮曾是國家事務的中心，先後有十位國王在此居住。日據時期多被拆毀，1990年代起復原，現為首爾五大古宮中氣氛最安靜、唯一免費入場的一座。", "t": "免門票：正門興化門→崇政殿→後苑散步，30-45分可走完主軸；西側出口接首爾歷史博物館，南側通往貞洞路（德壽宮石牆路）。拍照點：崇政殿前廣場＋丹青門廊柱。跟團停留時間約30-45分。", "s": ["https://zh.wikipedia.org/wiki/慶熙宮", "https://ko.wikipedia.org/wiki/경희궁", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "德壽宮石牆路": {"h": "德壽宮石牆路從德壽宮（高宗晚年定居的宮闕、大韓帝國宣布地）正門延伸，全長900公尺；是韓國首次引進「綠色複合街道」概念、以行人為中心重新翻修的示範道路，獲韓國美麗道路100選最優秀獎，被列為首爾最著名的浪漫散步道。", "t": "從德壽宮前廣場起步，沿石牆右繞一周約20分；秋季銀杏＋石牆的顏色最浪漫，傍晚散步感最好。沿途可接貞洞第一教堂等地標。拍照點：德壽宮大漢門前石牆段＋紅葉季金黃落葉。時間緊就只走正門那一段。", "s": ["https://zh.wikipedia.org/wiki/德壽宮", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "東大門綜合市場": {"h": "東大門綜合市場是韓國首爾規模最大的綜合批發市場，主要販售布料、服飾輔助材料、飾品配件與婚禮用品，批發與零售並行；是服裝設計師、手作DIY愛好者與找特殊布料配件者的去處，也與鄰近的東大門DDP商圈串成一帶。", "t": "本團以逛街購物停留：先在布料／飾品樓層看樣比價再買（批發城可殺價但不激烈），想體驗手作可買少量布料配件。旁邊步行可到東大門DDP與夜市小吃帶。停留40-60分。", "s": ["https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://zh.wikipedia.org/wiki/東大門（興仁之門一帶背景）"]}, "青瓦臺前道路": {"h": "入選「韓國觀光100選」的首爾著名街道，連接孝子洞孝子三叉路至八判洞八判三叉路，結合青瓦臺開放後的歷史風貌、綠意盎然的林蔭道與豐富人文景觀。青瓦臺自2022年總統辦公室遷出後開放參觀（青瓦臺自1948年建國後即為總統官邸所在地），周邊散步區域因此擴大。", "t": "沿林蔭道散步30-60分：景福宮側門→青瓦臺參觀入口（免費參觀需線上預約，現場以公告為準）→孝子路線一路到八判路線；秋色季節尤其漂亮。拍照點：青瓦臺本館與綠瓦屋頂一帶＋路樹大道。", "s": ["https://zh.wikipedia.org/wiki/青瓦臺", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "首爾明洞": {"h": "明洞從朝鮮時代的宅邸區轉型為首爾第一的商業購物區，如今是韓國地價最高、一天流動人口可達百萬以上的觀光購物重鎮；中央大街兩側是韓流小店與品牌名店，小巷內有露天攤販與小吃，美妝店密集、退稅方便——本團在此停留3-4小時自由購物。", "t": "自由購物攻略：先掃美妝店（單店滿₩15,000可辦退稅，現場即退或機場退）→大創DAISO 12層樓買小物（2023/2/28重新開幕）→接著吃街頭小吃（糖餅、雞蛋糕、烤起司）→免稅店/百貨最後一站。停留3-4小時，晚餐自理。", "s": ["https://zh.wikipedia.org/wiki/明洞", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/", "https://www.globaltaxfree.com/（退稅門檻）"]}, "首爾歷史公園(首爾路7017)": {"h": "首爾路7017：1970年建的首爾站高架道路，2017年6月改建為空中花園步道（名稱取1970+2017），全長約983公尺、設504個花盆植物園，是首爾站商圈的步行綠廊。——首爾東大門歷史文化公園（現行頁面Day5首站）：建於東大門運動場舊址，2008年建造時挖掘出朝鮮首爾都城城郭（二間水門、雉城、訓練都監遺構）與1,000多件朝鮮時代文物，園區旁即東大門設計廣場（DDP）。", "t": "若停首爾路7017：首爾站7號出口旁上坡道進入，沿花盆綠廊步行約20-30分，傍晚亮燈最美，走完可接明洞方向。——若停東大門歷史文化公園：公園＋DDP外觀拍照（異形鋁板建築）約30-45分，可順走隔壁市場小吃。兩種停靠都輕鬆，跟著領隊動線即可。", "s": ["https://ko.wikipedia.org/wiki/서울로7017（首爾路7017沿革）", "https://ko.wikipedia.org/wiki/동대문디자인플라자", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/（Day5第一站：首爾歷史公園＝동대문역사문화공원內文）"]}, "聖水洞": {"h": "聖水洞原是城東區一帶的沒落小工廠區（鞋廠、倉庫），近年轉型為懷舊氛圍咖啡廳與藝文空間聚集的街區，成功吸引年輕族群，被稱作「首爾的布魯克林」，另有著名的咖啡街；聖水站（首爾地鐵2號線）出站即是核心。", "t": "聖水站3號出口出站就是主街區：先逛咖啡街（人多可先排熱門店）→選物店（工廠直營鞋店/文具/雜貨）→接著去Standard Bread（步行約6分）。停留60-120分；週六人多早點到。", "s": ["https://ko.wikipedia.org/wiki/성수동", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "Standard Bread聖水店": {"h": "Standard Bread是以「新鮮出爐生吐司」為賣點的韓國麵包品牌（官方網站standard-bread.com）；聖水店因牆外的超萌巨大吐司造景＋花叢、小木橋、麵粉袋構成的「麵包花園」爆紅，是社群打卡熱點；店內可買生吐司、自製果醬搭配，最近的話題商品「紙巾吐司（휴지빵）」也在這裡吃得到。", "t": "拍照（牆外巨大吐司＋花園造景）→店內排隊買生吐司/紙巾吐司（消費自理）；人潮多但流動快，排20-30分常見。從聖水站步行約6分（推估，以導航為準）。停留20-30分＋排隊時間。", "s": ["https://standard-bread.com/（官方網站）", "https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/"]}, "東大門歷史文化公園": {"h": "首爾東大門歷史文化公園（現行頁面Day5首站）：建於東大門運動場舊址，2008年建造時挖掘出朝鮮首爾都城城郭（二間水門、雉城、訓練都監遺構）與1,000多件朝鮮時代文物，園區旁即東大門設計廣場（DDP）。", "t": "若停東大門歷史文化公園：公園＋DDP外觀拍照（異形鋁板建築）約30-45分，可順走隔壁市場小吃。兩種停靠都輕鬆，跟著領隊動線即可。", "s": ["https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/（頁面內文首站＝東大門歷史文化公園 issue③）", "文案自 spot_deep「首爾歷史公園(首爾路7017)」條目拆分，原文全保留"]}};
+/* V2.1 住宿資料：由 korea-trip-v2-data.json 對位注入（sopra＋stella 周邊包） */
+const HOTELS={"sopra": {"nm": "仁川SOPRA HOTEL（仁川索普拉青羅飯店／호텔소프라 인천청라）", "lat": 37.544606, "lng": 126.674352, "addr": "仁川廣域市西區 서곶로(西谷路)301號街 21（郵遞區號22726）", "cls": "3星級（Booking.com 分類）", "feat": "24小時櫃檯、商務中心、免費WiFi、館內美式餐廳、免費停車場", "metro": {"n": "仁川地鐵2號線 西區廳站（서구청역）", "w": 4, "d": "trip.com標註「距離西區廳地鐵站240米（直線距離）」；colatour註明鄰近西區廳站", "wnote": "240m直線＋街區繞行，約4分（colatour/V1.0同此說法，屬推估）"}, "conv": {"n": "未確認（未查得具體分店名）", "d": "trip.com POI清單未列便利店；青羅國際都市住宅商街屬便利店高密度區（CU/GS25/세븐일…"}, "food": [{"n": "서곶 손칼국수（西谷手刀麵）", "w": null, "note": "位於飯店同條서곶로一帶；步行時間未逐筆確認，以Naver Map導航為準", "why": "部落格「호텔 소프라 청라 정리」周邊맛집가이드推薦：清爽湯頭的海物刀切麵；位於飯店同條서곶로一帶；步行時間未逐筆確認，以Naver Map導航為準"}, {"n": "청라 한우마을（清羅韓牛村）", "w": null, "note": "車程6分（blog明載），超過步行15分範圍，需短程車", "why": "同部落格推薦：堅果香肉汁韓牛店，推薦板腱炭烤；車程6分（blog明載），超過步行15分範圍，需短程車"}, {"n": "飯店內美式餐廳（Hotel Sopra館內）", "w": 0, "note": "館內", "why": "Booking.com記載：館內設供應美式料理的餐廳；館內"}, {"n": " 청라심야식당 꽁스타멍아프로퐁디르（清羅深夜食堂）", "w": null, "note": "수변로一帶；步行時間未確認", "why": "清羅수변로一帶外帶/餐點店（新羅/天堂酒店出身主廚），在地部落格推薦；수변로一帶；步行時間未確認"}], "shop": [{"n": "Colombia Memorial Park（哥倫比亞紀念公園）", "w": 10, "note": "", "why": "飯店步行可達的小丘散步公園，看仁川市景"}, {"n": "HOMEPLUS（大賣場）", "w": null, "note": "2.6km 超過步行合理範圍，車程約5-8分", "why": "最近的大賣場，採買零食泡麵；2.6km 超過步行合理範圍，車程約5-8分"}, {"n": "仁川亞運主體育場一帶", "w": 10, "note": "", "why": "體育場園區散步"}], "note": "行程精選住宿＋Day1住宿候選首位為SOPRA；Day2-4候選首位為永宗島THE STELLA HOTEL、SOPRO排第二。實際每晚落點頁面未指定，可能全程同一家或混合安排，以領隊/行程確認單宣布為準。", "srcL": "http://www.hotelsopra.com/（官方網站：인천시 서구 서곶로 301번길 21, Tel 032-568-8700）；https://www.booking.com/hotel/kr/choyang-hotel.zh-tw.html（3星、館內美式餐廳、地址서곶로301번길21）；https://hk.trip.com/hotels/incheon-hotel-detail-6078362/hotel-sopra-incheon-cheongna/（座標＋附近POI＋「距離西區廳地鐵站240米（直線距離）」）；https://www.agoda.com/zh-tw/hotel-sopra-incheon-cheongna/hotel/incheon-kr.html（評價：CP值、家庭房、櫃檯服務）；https://hotel.colatour.com.tw/details?hotel-id=261853（中文介紹：鄰近仁川地鐵西區廳站）；https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/（行程頁精選住宿＋住宿候選清單）"}, "stella": {"nm": "永宗島THE STELLA HOTEL（스텔라호텔，구 인터내셔널 호텔 영종／舊仁川永宗國際飯店）", "lat": 37.491713, "lng": 126.580817, "addr": "인천광역시 영종구 은하수로 29번길 47（仁川廣域市永宗區銀水路29號街47；郵遞區號22410）", "cls": "未標星級（trip.com未顯示星級欄位）", "feat": "舊「International Hotel Yeongjong」改名；trip.com評分7.4/10（1萬+則評價）；hotelscombined評分6.7/10（541則）", "metro": {"n": "無捷運站直達", "w": null, "d": "trip.com頁面 isShowMetroAccess=false（無地鐵捷徑欄）；對外移動以公車/計程車為主（往月尾島/仁川站/機場方向…", "wnote": "—"}, "conv": {"n": "未確認（未查得具體分店名）", "d": "trip.com POI清單未列便利店；영종하늘도시住宅區便利店密度高，請以Naver Map現搜「…"}, "food": [{"n": "구읍뱃터조개구이 2호점（舊邑船場貝類燒烤2號店）", "w": null, "note": "同為 영종구 은하수로 一帶（중산동）；步行時間未確認，以Naver Map導航為準", "why": "永宗島著名구읍뱃터（貝類烤食聚落）系店家：烤貝＋大貝湯鍋聞名，KFOOD登錄店家；同為 영종구 은하수로 一帶（중산동）；步行時間未確認，以Naver Map導航為準"}, {"n": "메가엠지씨커피 영종구읍뱃터점（Mega MGC Coffee）", "w": null, "note": "同路一帶；步行分鐘未確認", "why": "은하수로 10（1층 105-106號）連鎖咖啡，飯店同條主路；同路一帶；步行分鐘未確認"}, {"n": "카페뱃터（Cafe BaeTto／海景咖啡）", "w": null, "note": "同路一帶；步行分鐘未確認", "why": "은하수로 1 오션뷰 7層（O션뷰大樓703-706號），可看海景；同路一帶；步行分鐘未確認"}], "shop": [{"n": "태평루一帶（飯店240m）", "w": 4, "note": "", "why": "trip.com POI列為就近去處（步行直線240m）"}, {"n": "영종씨사이드 레일바이크（永宗海濱自行車軌道車）", "w": 8, "note": "", "why": "海濱休閒設施，520m"}, {"n": "월미도 놀이공원（月尾島遊樂園）", "w": null, "note": "隔水相望非步行路線，需公車/計程車", "why": "永宗島對岸仁川知名遊樂园；隔水相望非步行路線，需公車/計程車"}], "note": "Day2-4住宿候選首位（行程頁文字「永宗島THE STELLA HOTEL 或仁川SOPRA HOTEL或…或同級」）；實際每晚落點以領隊/行程確認單宣布為準。", "srcL": "https://kr.trip.com/hotels/incheon-hotel-detail-4122737/stellar-formerly-international-hotel-yeongjong/（名稱「스텔라호텔 (구 인터영종)」＋地址＋座標37.491713,126.580817＋附近POI）；https://www.hotelscombined.co.kr/Hotel/International_Hotel_Youngjong.htm（주소：인천 영종구 은하수로29번길 47；評分6.7/541則）；https://www.traveloka.com/ko-kr/hotel/south-korea/stellar-formerly-international-hotel-yeongjong-9000005623162（英文别名Stellar-Formerly International Hotel Yeongjong＋附近景點距離）；https://www.travel4u.com.tw/group/itinerary/CJJ0526CA/（行程頁Day2-4住宿候選首位）"}};
 const SPOTS=[
  {d:1,nm:'清州國際機場',lat:36.715556,lng:127.497464,ic:'✈️',dr:'落地第一站',dn:'忠清北道清州市',intro:'桃園⇄清州，易斯達航空（託運 20kg＋手提 10kg，機上無餐食）。回程 Day5 從這飛回台灣。',tips:'回程預留 2 小時：退稅＋安檢＋免稅店。'},
  {d:1,nm:'壽岩谷壁畫村',lat:36.646375,lng:127.494495,ic:'🎨',dr:'drama',dn:'《麵包王金卓求》拍攝地',intro:'韓戰後難民聚落的「月亮山村」，2007 年公共藝術計畫後變身壁畫村，巷弄處處是彩繪，山頂還有可以俯瞰清州景色的屋頂咖啡廳。',tips:'上坡路段穿好走的鞋；傍晚夕陽時分拍照最美。'},
@@ -144,80 +286,457 @@ const SPOTS=[
  {d:4,nm:'青瓦臺前道路',lat:37.586683,lng:126.976067,ic:'🏛️',dr:'觀光100選',dn:'首爾鍾路區',intro:'連接孝子洞至八判洞的林蔭道，青瓦臺開放後的歷史風貌＋綠蔭大道＋豐富人文景觀。',tips:'青瓦臺免費參觀需預約；沿途散步很舒服。'},
  {d:4,nm:'首爾明洞',lat:37.560898,lng:126.986376,ic:'💄',dr:'自由購物 3~4h',dn:'首爾中區',intro:'首爾第一購物重鎮：美妝、服飾、潮牌、街頭小吃應有盡有，一天流動人口可達百萬。退稅方便。',tips:'彩妝店滿額退稅；先掃美妝再吃小吃，3~4 小時剛好。'},
  {d:5,nm:'首爾歷史公園(首爾路7017)',lat:37.556686,lng:126.97139,ic:'🌿',dr:'空中花園步道',dn:'首爾站旁',intro:'高架人行步道改造的空中花園，504 個花盆植物園，從首爾站步行即達。',tips:'傍晚亮燈後氛圍最好。'},
+ /* V2.1 Day5「同日多點採選」第一個使用者：行程頁首站名稱兩版本並列（資料 issue③）；座標＝OpenStreetMap/Nominatim 동대문역사문화공원 POI（2026-10-07 查詢，DDP 一帶） */
+ {d:5,nm:'東大門歷史文化公園',lat:37.565876,lng:127.008157,ic:'🏟️',dr:'Day5 首站二選一',dn:'DDP 一帶・中區光熙洞',ch:1,intro:'Day5 首站的另一個可能停靠點：旅行社頁面內文首站寫的是東大門歷史文化公園（DDP 一帶），頁面站名則寫「首爾歷史公園」——兩條路線不同，跟著領隊動線走即可。',tips:'公園＋DDP 外觀拍照約 30-45 分；順路可吃隔壁市場小吃。'},
  {d:5,nm:'聖水洞',lat:37.544569,lng:127.056102,ic:'📸',dr:'必逛新景點',dn:'城東區・聖水站',intro:'倉庫改造的文青街區：咖啡、選物店、工廠直營店聚集，首爾近年最紅的街區之一。',tips:'聖水站 3 號出口出站就是主街區。'},
  {d:5,nm:'Standard Bread聖水店',lat:37.54191,lng:127.059897,ic:'🍞',dr:'巨大萌吐司',dn:'城東區聖水路18街37號',intro:'牆外超萌巨大吐司＋花叢小橋的麵包花園造景；生吐司＋紙巾吐司必買，飲料自理。',tips:'聖水站步行約 6 分鐘；排隊人潮多但流動快。'},
 ];
-const HOTEL={nm:'仁川 SOPRA HOTEL（青羅）',lat:37.544606,lng:126.674352,note:'仁川西區 서곶로301街21號・仁川地鐵2號線西區廳站步行4分。行程住宿有多間候選，以領隊宣布為準。'};
 
-let cur=null,watch=null,dayFilter='全部';
-let visited=JSON.parse(localStorage.getItem('krVisited')||'{}');
+/* ============ 常數（單一來源） ============ */
+// ✅ V2.0 修正：抵達半徑唯一來源。V1.1 的 bug：定 R=400 卻在判斷用硬碼 500，統一為 400 公尺。
+const ARRIVE_R=400; // 公尺
+const NEAR_R=1000;  // V2.1：附近 1km 只提示一次
+const TRIP_N=5;
+const DEPARTS=['2026-11-10','2026-11-17','2026-11-24']; // 三批出發日
+const LS_VISITED='krVisited',LS_START='krStart',LS_THEME='krTheme';
+const LS_POP='krPop',LS_NEAR='krNear'; // V2.1：抵達卡當日彈出紀錄＋附近 1km 提示紀錄
+const qNow=new URLSearchParams(location.search).get('now'); // 測試 hook：?now=2026-11-17
+const NOW=qNow?new Date(qNow+'T00:00:00'):new Date();
+const today=new Date(NOW.getFullYear(),NOW.getMonth(),NOW.getDate());
+const VER='V2.1';
+
+let cur=null,watch=null,dayFilter='全部',map=null,mapBooted=false,mapOpen=false,myDot=null,myAcc=null,firstFix=true,dayTabsAuto=false;
+const markers={};
+let visited={};
+try{visited=JSON.parse(localStorage.getItem(LS_VISITED)||'{}');}catch(e){visited={};}
+const saveVisited=()=>localStorage.setItem(LS_VISITED,JSON.stringify(visited));
+/* V2.1 抵達偵測狀態：0=今日未彈出、1=已彈出（未關）、2=已關閉（今日不再彈） */
+let popLog={},nearLog={},openFold=new Set();
+try{popLog=JSON.parse(localStorage.getItem(LS_POP)||'{}');}catch(e){popLog={};}
+try{nearLog=JSON.parse(localStorage.getItem(LS_NEAR)||'{}');}catch(e){nearLog={};}
+function savePop(){localStorage.setItem(LS_POP,JSON.stringify(popLog));}
+function saveNear(){localStorage.setItem(LS_NEAR,JSON.stringify(nearLog));}
+function popKey(nm){const t=trip();const start=t?t.start:'x';const ds=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();return start+'|'+ds+'|'+nm;}
+
+const $=id=>document.getElementById(id);
+
+/* ============ 工具 ============ */
 function haversine(a,b,c,d){const r=x=>x*Math.PI/180;const h=Math.sin(r(c-a)/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(r(d-b)/2)**2;return 2*6371*Math.asin(Math.sqrt(h));}
+function fmtDist(k){return k<1?Math.round(k*1000)+' 公尺':k.toFixed(1)+' km';}
+function esc(s){const d=document.createElement('div');d.textContent=(s==null?'':String(s));return d.innerHTML;}
 function nearSearch(kw){
   if(!cur){alert('先按上面的「開啟 GPS」才能找附近哦～');return;}
-  window.open(`https://www.google.com/maps/search/${encodeURIComponent(kw)}/@${cur.latitude},${cur.longitude},16z`,'_blank');
+  window.open('https://www.google.com/maps/search/'+encodeURIComponent(kw)+'/@'+cur.latitude+','+cur.longitude+',16z','_blank');
 }
-function gmapLink(lat,lng,mode){return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=${mode||'walking'}`;}
-function fmtDist(k){return k<1?Math.round(k*1000)+' 公尺':k.toFixed(1)+' km';}
+/* ✅ V2.0 導航升級：主力＝韓國事實標準 Naver Map＋KakaoMap，Google 降備用。
+   KakaoMap web link（官方格式）：https://map.kakao.com/link/map/{URI編碼名},{lat},{lng}
+   Naver（官方 p-directions 路由，原點留空 '-'＝目前位置）：https://map.naver.com/p/directions/-/{lng},{lat}/{mode}，walk=步行、transit=大眾運輸
+   Google Maps Directions（再備用）：https://www.google.com/maps/dir/?api=1&destination={lat},{lng}&travelmode=walking */
+function naverDir(lat,lng,mode){return 'https://map.naver.com/p/directions/-/'+lng+','+lat+'/'+(mode||'walk');}
+function kakaoMap(nm,lat,lng){return 'https://map.kakao.com/link/map/'+encodeURIComponent(nm)+','+lat+','+lng;}
+function gmapDir(lat,lng){return 'https://www.google.com/maps/dir/?api=1&destination='+lat+','+lng+'&travelmode=walking';}
+function naverSearch(q){return 'https://map.naver.com/p/search/'+encodeURIComponent(q);}
+function goSpotIdx(i){const s=SPOTS[i];if(s)window.open(naverDir(s.lat,s.lng,'walk'),'_blank');}
+
+/* ============ 深色模式（跟隨系統＋手動 toggle） ============ */
+function effTheme(){const a=document.documentElement.getAttribute('data-theme');if(a)return a;return matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}
+function applyTheme(){
+  const stored=localStorage.getItem(LS_THEME);
+  const el=document.documentElement;
+  if(stored)el.setAttribute('data-theme',stored);else el.removeAttribute('data-theme');
+  const eff=effTheme();
+  el.classList.toggle('theme-dark',eff==='dark');
+  el.classList.toggle('theme-light',eff==='light');
+  const mtc=document.querySelector('meta[name="theme-color"]');if(mtc)mtc.setAttribute('content',eff==='dark'?'#101b19':'#264653');
+  $('btnTheme').textContent=eff==='dark'?'☀️':'🌙';
+}
+function toggleTheme(){const eff=effTheme();localStorage.setItem(LS_THEME,eff==='dark'?'light':'dark');applyTheme();}
+
+/* ============ 出發日＋今天是第幾天 ============ */
+function trip(){const s=localStorage.getItem(LS_START);if(!s)return null;const ds=new Date(s+'T00:00:00');const diff=Math.round((today-ds)/86400000);return{start:s,ds,diff};}
+function activeDay(){const t=trip();return t&&t.diff>=0&&t.diff<TRIP_N?t.diff+1:null;}
+function dayDate(n){const t=trip();if(!t)return '';const d=new Date(t.ds.getFullYear(),t.ds.getMonth(),t.ds.getDate()+n-1);return (d.getMonth()+1)+'/'+d.getDate();}
+function dayWD(n){const t=trip();if(!t)return '';return new Date(t.ds.getFullYear(),t.ds.getMonth(),t.ds.getDate()+n-1).toLocaleDateString('zh-TW',{weekday:'short'});}
+function openStart(){renderModal();$('startModal').style.display='flex';}
+function closeStart(){$('startModal').style.display='none';}
+function renderModal(){
+  $('mdBtns').innerHTML=DEPARTS.map(s=>{const ds=new Date(s+'T00:00:00');const wd=ds.toLocaleDateString('zh-TW',{weekday:'short'});return '<button class="md-btn" onclick="pickDepart(\''+s+'\')">'+(ds.getMonth()+1)+'/'+ds.getDate()+'（'+wd+'）出發</button>';}).join('');
+}
+function pickDepart(s){
+  localStorage.setItem(LS_START,s);closeStart();
+  const t=trip();if(t&&t.diff>=0&&t.diff<TRIP_N)dayFilter=t.diff+1; // 當日自動預選
+  renderAll();
+}
+function initStart(){
+  const t=trip();
+  if(!t){openStart();}
+  else if(t.diff>=0&&t.diff<TRIP_N){dayFilter=t.diff+1;dayTabsAuto=true;} // 當日景點自動預選＋置頂（tab 過濾）
+}
+
+/* ============ 住宿（V2.1：每晚動態——Day1=SOPRA／Day2-4=THE STELLA／Day5=回程） ============ */
+function hotelForDay(d){if(d===1)return HOTELS.sopra;if(d>=2&&d<=4)return HOTELS.stella;return null;}
+function airportSpot(){return SPOTS.find(s=>s.nm.indexOf('清州國際機場')===0);}
+
+/* ============ 集合模式卡（V2.1：slot 留好，無數據=以領隊宣布為準；領隊電話無數據=隱藏欄） ============ */
+const ASSEMBLY={}; // 例：{'水原華城':{pt:'八達門廣場',time:'14:00',walk:'12 分',tel:'+82-…'}}——老大數據填這裡
+function asmHTML(nm){
+  const a=ASSEMBLY[nm]||{};
+  const na='<span class="v">以領隊宣布為準</span>';
+  let g='<div class="k">集合點：</div><div>'+((a.pt)?'<b>'+esc(a.pt)+'</b>':na)+'</div>'
+      +'<div class="k">集合時間：</div><div>'+((a.time)?'<b>'+esc(a.time)+'</b>':na)+'</div>'
+      +'<div class="k">步行：</div><div>'+((a.walk)?'<b>'+esc(a.walk)+'</b>':na)+'</div>';
+  if(a.tel)g+='<div class="k">領隊電話：</div><div><a href="tel:'+esc(a.tel)+'"><b>'+esc(a.tel)+'</b></a></div>';
+  return '<div class="asm-card"><div class="asm-t">📍 集合模式（離開時集合點／時間／步行／領隊）</div><div class="asm-grid">'+g+'</div></div>';
+}
+
+/* ============ 深色模式外的GPS：定位＋附近提示（V2.1） ============ */
 function locate(){
-  const st=document.getElementById('gpsStatus');
+  const st=$('gpsStatus');
   if(!navigator.geolocation){st.textContent='這個裝置/瀏覽器不支援 GPS。';return;}
   st.innerHTML='⏳ 定位中…（允許位置權限，首次可能 5~10 秒）';
   if(watch)navigator.geolocation.clearWatch(watch);
   watch=navigator.geolocation.watchPosition(p=>{
     cur=p.coords;
-    st.innerHTML=`<span class="locate-badge lb-green">GPS 連線中</span> 精度 ±${Math.round(p.coords.accuracy)} 公尺｜${new Date(p.timestamp).toLocaleTimeString('zh-TW')}`;
+    st.innerHTML='<span class="locate-badge lb-green">GPS 連線中</span> 精度 ±'+Math.round(p.coords.accuracy)+' 公尺｜'+new Date(p.timestamp).toLocaleTimeString('zh-TW');
+    if(map){putDot();if(firstFix)fitAll();}
+    firstFix=false;
+    nearHintOnce();
     renderAll();
   },e=>{
     st.innerHTML=e.code===1?'🚫 位置權限被拒——請到瀏覽器設定開啟定位後重試。':'❌ 定位失敗（'+e.message+'）。室內常抓不到，走到戶外再試一次。';
   },{enableHighAccuracy:true,maximumAge:3000,timeout:20000});
 }
-function renderAll(){renderArrive();renderNear();renderProgress();renderSpots();}
+/* V2.1：附近 1km（未抵達）只提示一次——每站每天一次 */
+function nearHintOnce(){
+  if(!cur)return;
+  let best=null;
+  SPOTS.forEach(s=>{const k=haversine(cur.latitude,cur.longitude,s.lat,s.lng)*1000;if(k>ARRIVE_R&&k<=NEAR_R&&(!best||k<best.k))best={s,k};});
+  const hint=$('nearHint');
+  if(!best){hint.style.display='none';return;}
+  const key=popKey(best.s.nm)+'|near';
+  if(nearLog[key])return;
+  nearLog[key]=1;saveNear();
+  hint.style.display='block';
+  hint.textContent='📍 附近 1km 有：'+best.s.ic+' '+best.s.nm+'（約 '+fmtDist(best.k/1000)+'）——先聽領隊解說，到了再打卡。';
+  if(navigator.vibrate)navigator.vibrate([60,50,60]);
+  clearTimeout(hint._t);hint._t=setTimeout(()=>{hint.style.display='none';},8000);
+}
+
+/* ============ 首屏任務指揮卡（V2.1 核心：現在＋單一主 CTA 狀態機） ============ */
+/* 狀態機：未出發→前往(🚶去下一站)→已抵達(✅我到了=唯一主鈕)→已打卡(📍前往下一站)→離開→下一站
+   一次只突出一個主 CTA；徽章文字直寫狀態。 */
+function nextUnvisitedToday(){
+  const act=activeDay();if(!act)return null;
+  for(const s of SPOTS){if(s.d===act&&!visited[s.nm])return s;}
+  return null;
+}
+function renderBanner(){
+  const t=trip();const b=$('dayBanner');
+  const chg='<span class="chg" onclick="openStart()">更改出發日</span>';
+  if(!t){b.innerHTML='🗓️ <b>先選出發日</b>（11/10・11/17・11/24）——之後自動告訴你今天玩到第幾天 '+chg;return;}
+  if(t.diff<0){b.innerHTML='🗓️ <b>還有 '+(-t.diff)+' 天出發</b>｜'+t.start+' 開始的 5 天之旅｜Day 1 是 '+dayDate(1)+'（'+dayWD(1)+'） '+chg;return;}
+  if(t.diff>=TRIP_N){b.innerHTML='🏁 '+t.start+' 出發的 5 天旅程已結束｜回顧行程 '+chg;return;}
+  const d=t.diff+1;
+  b.innerHTML='🎉 今天是 <b>Day '+d+'</b>｜'+dayDate(d)+'（'+dayWD(d)+'）｜第 '+d+' 天／共 '+TRIP_N+' 天 '+chg;
+}
+function renderCommand(){
+  renderBanner();
+  const t=trip(),act=activeDay();
+  const nowEl=$('ccNow'),ctaEl=$('ccCta');
+  if(!act){
+    const cta=!cur?'<button class="cc-main cc-idle" id="btnGps" onclick="locate()">📍 開啟 GPS</button>':'<button class="cc-main cc-idle" onclick="openStart()">🗓️ 選出發日</button>';
+    nowEl.innerHTML=(cur?'現在：GPS 連線中——先選出發日再排任務':'現在：未開 GPS——開啟後自動偵測附近景點');
+    ctaEl.innerHTML='<div class="cc-next">下一件事：'+(cur?'選出發日，開始今天的任務':'允許定位，讓小助理知道你在哪')+'</div>'+cta;
+  }else if(!cur){
+    nowEl.innerHTML='現在：<b class="cc-badge badge-punch">未開 GPS</b> 開啟後顯示附近景點與今日任務';
+    ctaEl.innerHTML='<div class="cc-next">下一件事：允許定位，開始今天的行程</div><button class="cc-main cc-idle" id="btnGps" onclick="locate()">📍 開啟 GPS</button>';
+  }else{
+    const list=SPOTS.map((s,i)=>({s,i,k:haversine(cur.latitude,cur.longitude,s.lat,s.lng)})).sort((a,b)=>a.k-b.k);
+    const n=list[0],nmK=n.k*1000;
+    let cta='';
+    if(nmK<=ARRIVE_R&&!visited[n.s.nm]){
+      nowEl.innerHTML='現在：<b class="cc-badge badge-here">🟢 已抵達</b>'+n.s.ic+' '+esc(n.s.nm)+'（距離 '+fmtDist(n.k)+'）';
+      ctaEl.innerHTML='<div class="cc-next">下一件事：打卡 <b>'+esc(n.s.nm)+'</b>（打完再看集合資訊）</div>'
+        +'<button class="cc-main" onclick="markSpot('+n.i+')">✅ 我到了（打卡）</button>';
+    }else if(nmK<=ARRIVE_R&&visited[n.s.nm]){
+      const T=nextUnvisitedToday(),h=hotelForDay(act);
+      nowEl.innerHTML='現在：<b class="cc-badge badge-done">✅ 已打卡</b>'+n.s.ic+' '+esc(n.s.nm);
+      if(T){ctaEl.innerHTML='<div class="cc-next">下一件事：<b>'+esc(T.ic+' '+T.nm)+'</b></div><button class="cc-main" onclick="goSpotIdx('+SPOTS.indexOf(T)+')">📍 前往下一站</button>';}
+      else{ctaEl.innerHTML='<div class="cc-next">下一件事：'+(h?'回飯店休息（以領隊宣布的時間集合上車）':'今晚無住宿——回程日，聽領隊指揮')+'</div>'+(h?'<button class="cc-main cc-finish" onclick="hotelGo()">🏨 回飯店</button>':'<button class="cc-main cc-finish cc-finish-idle" disabled>🏁 今日任務完成</button>');}
+    }else{
+      const T=nextUnvisitedToday();
+      if(T){
+        const nearTxt=(nmK<=NEAR_R)?(n.s.ic+' '+esc(n.s.nm)+' 附近（'+fmtDist(n.k)+'）— '):'';
+        nowEl.innerHTML='現在：<b class="cc-badge badge-go">🚶 前往中</b>'+(nearTxt||'移動中（距離下一站 '+esc(T.nm)+' 約 '+fmtDist(haversine(cur.latitude,cur.longitude,T.lat,T.lng))+'）');
+        ctaEl.innerHTML='<div class="cc-next">下一件事：<b>'+esc(T.ic+' '+T.nm)+'</b></div><button class="cc-main" onclick="goSpotIdx('+SPOTS.indexOf(T)+')">🚶 去下一站</button>';
+      }else{
+        const h=hotelForDay(act);
+        nowEl.innerHTML='現在：<b class="cc-badge badge-done">🏁 任務完成</b>今日點全打卡了';
+        ctaEl.innerHTML='<div class="cc-next">下一件事：'+(h?'回飯店':'今晚無住宿——回程日，聽領隊指揮')+'</div>'+(h?'<button class="cc-main cc-finish" onclick="hotelGo()">🏨 回飯店</button>':'<button class="cc-main cc-finish cc-finish-idle" disabled>🏁 今日任務完成</button>');
+      }
+    }
+  }
+  renderSos();
+}
+
+/* ============ 抵達卡＋「我到了」打卡（V2.1：自動卡 ≠ 打卡） ============ */
+function closeArrive(){
+  const box=$('arriveBox');
+  const nm=$('arriveBox').getAttribute('data-spot');
+  if(nm){popLog[popKey(nm)]=2;savePop();} // 關閉＝今日不再彈，關閉≠打卡
+  box.style.display='none';
+}
 function renderArrive(){
-  const box=document.getElementById('arriveBox');
-  if(!cur){box.style.display='none';return;}
-  let near=SPOTS.map(s=>({...s,k:haversine(cur.latitude,cur.longitude,s.lat,s.lng)})).sort((a,b)=>a.k-b.k)[0];
-  const R=400; // 抵達半徑（公尺）
-  if(near.k*1000>500){box.style.display='none';return;}
+  const box=$('arriveBox');
+  if(!cur){box.style.display='none';renderNext(null);return;}
+  const list=SPOTS.map((s,i)=>({s,i,k:haversine(cur.latitude,cur.longitude,s.lat,s.lng)})).sort((a,b)=>a.k-b.k);
+  const near=list[0];
+  if(near.k*1000>ARRIVE_R){box.style.display='none';renderNext(null);return;}
+  const s=near.s,key=popKey(s.nm),flag=popLog[key]||0;
+  /* V2.1 到卡規則：未打卡當日第一進圈＝彈一次（flag 0→1）；關閉（flag=2）當日不再彈；已打卡只有「今日曾開且未關」才續攤 */
+  let show=false;
+  if(visited[s.nm]){if(flag===1)show=true;}
+  else if(flag<2){if(flag===0){popLog[key]=1;savePop();}show=true;}
+  if(!show){box.style.display='none';renderNext(null);return;}
+  box.setAttribute('data-spot',s.nm);
   box.style.display='block';
-  document.getElementById('arriveTag').textContent=`🎉 抵達景點｜Day ${near.d}`;
-  document.getElementById('arriveNm').textContent=`${near.ic} ${near.nm}`;
-  document.getElementById('arriveDist').textContent=`距離 ${fmtDist(near.k)}｜${near.dn}`;
-  document.getElementById('arriveIntro').textContent=near.intro;
-  document.getElementById('arriveTips').innerHTML='💡 '+near.tips;
-  document.getElementById('arriveNav').href=gmapLink(near.lat,near.lng);
-  document.getElementById('arriveMap').href=`https://www.google.com/maps/search/?api=1&query=${near.lat},${near.lng}`;
-  if(!visited[near.nm]){visited[near.nm]=new Date().toLocaleString('zh-TW');localStorage.setItem('krVisited',JSON.stringify(visited));}
+  $('arriveTag').textContent='🎉 抵達景點｜Day '+s.d+'｜'+s.dn+(s.ch?'｜🅾️ 選項站':'');
+  $('arriveNm').textContent=s.ic+' '+s.nm;
+  $('arriveDist').textContent='距離 '+fmtDist(near.k)+(s.ch?'（同日採選站：跟領隊動線）':'');
+  const deep=SPOT_DEEP[s.nm]||{};
+  let g=(s.intro||'')+' '+(deep.h||'');
+  g=g.replace(/\\s+/g,' ').trim();
+  $('arriveIntro').textContent='🎤 '+(g.length>80?g.slice(0,80)+'…':g); // V2.1 導遊開場白 ≤80 字
+  $('arriveTips').innerHTML='💡 '+esc(s.tips);
+  $('arriveNav').href=naverDir(s.lat,s.lng,'walk');
+  $('arriveTransit').href=naverDir(s.lat,s.lng,'transit');
+  $('arriveMap').href=kakaoMap(s.nm,s.lat,s.lng);
+  $('arriveAsm').innerHTML=asmHTML(s.nm);
+  const btn=$('arriveDone');
+  if(visited[s.nm]){btn.textContent='✅ 已打卡';btn.classList.add('done');btn.onclick=null;}
+  else{btn.textContent='✅ 我到了（打卡）';btn.classList.remove('done');btn.onclick=()=>markHere(s.nm);}
+  renderNext(near);
+}
+function markSpot(i){const s=SPOTS[i];if(s)markHere(s.nm);}
+function markHere(nm){
+  if(!nm)return;
+  if(!visited[nm]){visited[nm]=new Date().toLocaleString('zh-TW')+'（手動打卡）';saveVisited();if(navigator.vibrate)navigator.vibrate([80,60,80]);}
+  renderAll();
+}
+function renderNext(near){
+  const c=$('nextCard');
+  if(!near){c.style.display='none';return;} // V2.1：下一站預告只在抵達卡出現時顯示（指揮卡接手其餘狀態，避免重複）
+  let focusIdx=near.i;
+  let nx=null,nxi=-1;
+  for(let i=focusIdx+1;i<SPOTS.length;i++){if(!visited[SPOTS[i].nm]){nx=SPOTS[i];nxi=i;break;}}
+  if(!nx){c.style.display='none';return;}
+  c.style.display='flex';
+  $('nsNm').textContent=nx.ic+' '+nx.nm;
+  $('nsMeta').textContent='Day '+nx.d+'｜'+(nx.dn||'')+(cur?'｜距離 '+fmtDist(haversine(cur.latitude,cur.longitude,nx.lat,nx.lng)):'');
+  $('nsGo').href=naverDir(nx.lat,nx.lng,'walk');
+  c.onclick=()=>openSpot(nxi);
+}
+
+/* ============ 進度 chips（跟 visited 聯動） ============ */
+function manualCheck(i){
+  const s=SPOTS[i];if(!s)return;
+  if(!visited[s.nm]){visited[s.nm]=new Date().toLocaleString('zh-TW')+'（手動打卡）';saveVisited();openFold.add(i);if(navigator.vibrate)navigator.vibrate([80,60,80]);}
+  renderAll();
 }
 function renderProgress(){
-  const row=document.getElementById('progRow');
-  if(!cur){row.style.display='none';return;}
-  row.style.display='block';
-  row.innerHTML='<div style="font-size:13px;font-weight:800;margin-bottom:6px;">🧭 跟團進度（GPS 抵達自動記錄）</div>'+[1,2,3,4,5].map(d=>{
+  $('progRow').innerHTML='<div class="pt">🧭 跟團打卡進度（只有「我到了」計進度）</div><div class="progress-row">'+[1,2,3,4,5].map(d=>{
     const ds=SPOTS.filter(s=>s.d===d);
     const done=ds.filter(s=>visited[s.nm]).length;
-    return `<span class="prog-chip ${done?'':'off'}">Day ${d}｜${done}/${ds.length}${done===ds.length?' ✅':''}</span>`;
-  }).join('');
+    return '<span class="prog-chip '+(done?'done':'')+'">Day '+d+'｜'+done+'/'+ds.length+(done===ds.length?' ✅':'')+'</span>';
+  }).join('')+'</div>';
 }
+
+/* ============ Leaflet 迷你地圖（可摺疊，預設收起） ============ */
+function toggleMap(){
+  mapOpen=!mapOpen;
+  $('mapSec').classList.toggle('open',mapOpen);
+  $('mapToggle').textContent=mapOpen?'收起 ▴':'展開 ▾';
+  if(mapOpen&&!mapBooted)bootMap();
+  if(mapOpen&&map)setTimeout(()=>{map.invalidateSize();if(cur)fitAll();},60);
+  renderMapNote();
+}
+function bootMap(){
+  const Lw=window.L;
+  if(!Lw){$('mapNote').textContent='地圖載入失敗（網路）';return;}
+  map=Lw.map('minimap',{zoomControl:false}).setView([37.2,127.1],9);
+  Lw.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+  const dcol=['#E76F51','#2A9D8F','#E9C46A','#9B72CF','#6BBF59'];
+  SPOTS.forEach((s,i)=>{
+    const m=Lw.circleMarker([s.lat,s.lng],{radius:6,color:'#fff',weight:1.5,fillColor:dcol[s.d-1],fillOpacity:.95}).addTo(map);
+    m.bindPopup('<b>'+esc(s.ic+' '+s.nm)+'</b><br>Day '+s.d+''+(s.ch?'｜🅾️ 選項站':'')+'｜'+esc(s.dn||''));
+    m.on('click',()=>openSpot(i));
+    markers[s.nm]=m;
+  });
+  [HOTELS.sopra,HOTELS.stella].forEach(h=>{
+    const p=Lw.circleMarker([h.lat,h.lng],{radius:7,color:'#fff',weight:2,fillColor:'#264653',fillOpacity:1}).addTo(map);
+    p.bindPopup('<b>🏨 '+esc(h.nm)+'</b><br>'+esc(h.addr||'')+'<br>每晚落點以領隊宣布為準');
+    markers['hotel:'+h.nm]=p;
+  });
+  mapBooted=true;
+  if(cur)putDot();
+}
+function putDot(){
+  if(!map||!cur)return;const Lw=window.L;if(!Lw)return;
+  if(myDot)map.removeLayer(myDot);if(myAcc)map.removeLayer(myAcc);
+  myAcc=Lw.circle([cur.latitude,cur.longitude],{radius:Math.min(Math.max(cur.accuracy||50,20),500),weight:0,fillColor:'#1A73E8',fillOpacity:.10}).addTo(map);
+  myDot=Lw.circleMarker([cur.latitude,cur.longitude],{radius:7,color:'#fff',weight:2.5,fillColor:'#1A73E8',fillOpacity:1}).addTo(map);
+  myDot.bindPopup('<b>📍 我們在這</b>');
+}
+function fitAll(){
+  if(!map)return;const Lw=window.L;if(!Lw)return;
+  const pts=SPOTS.map(s=>[s.lat,s.lng]);
+  pts.push([HOTELS.sopra.lat,HOTELS.sopra.lng]);pts.push([HOTELS.stella.lat,HOTELS.stella.lng]);
+  if(cur)pts.push([cur.latitude,cur.longitude]);
+  try{map.fitBounds(Lw.latLngBounds(pts).pad(0.06));}catch(e){}
+}
+function renderMapNote(){
+  const n=$('mapNote');
+  n.textContent=mapOpen
+    ?(cur?'📍 我們在這｜點 pin 看介紹':'點 pin 看景點介紹')
+    :(cur?'GPS 開啟中：我們在這 📍':'19 景點＋2 飯店一覽（收合省流量）');
+}
+
+/* ============ 行程清單（V2.1：當日=全卡、其他=折疊一行；Day tabs 可手動切） ============ */
+function setDay(v){dayFilter=v;renderSpots();}
+function openSpot(i){
+  const s=SPOTS[i];
+  if(dayFilter!=='全部'&&dayFilter!==s.d)dayFilter=s.d;
+  openFold.add(i);
+  renderSpots();
+  const el=$('sp'+i);
+  if(el){el.classList.add('open');el.scrollIntoView({behavior:'smooth',block:'center'});}
+}
+function toggleFold(i){
+  const el=$('sp'+i);if(!el)return;
+  const willOpen=!el.classList.contains('open');
+  el.classList.toggle('open',willOpen);
+  if(willOpen)openFold.add(i);else openFold.delete(i);
+}
+function todayCardHTML(s,i,act,vis){
+  const deep=SPOT_DEEP[s.nm]||{};
+  const srcTxt=(deep.s||[]).join('；');
+  const h=hotelForDay(s.d);
+  return '<div class="spot today" id="sp'+i+'">'
+    +'<div class="spot-head"><div class="nm">'+(vis?'✅ ':'')+s.ic+' '+esc(s.nm)+' <span class="todaypill">📍 今天</span>'+(s.ch?'<span class="opt-badge">🅾️ 選項</span>':'')+'</div>'
+    +'<span class="tag '+(s.dr==='drama'?'drama':'')+'">'+esc(s.dr)+'</span></div>'
+    +'<div class="spot-body">'
+    +'<div class="spot-desc">'+(s.dn?'📍 '+esc(s.dn)+'<br>':'')+esc(s.intro)+'<br>💡 '+esc(s.tips)
+    +(deep.h?'<span class="gd" title="來源：'+esc(srcTxt)+'">📖 歷史</span><br>'+esc(deep.h)+'<br>':'')
+    +(deep.t?'<span class="gd" title="來源：'+esc(srcTxt)+'">🧭 怎麼逛</span><br>'+esc(deep.t):'')+'</div>'
+    +asmHTML(s.nm)
+    +'<div class="spot-actions">'
+    +'<a class="main-go" target="_blank" rel="noopener" href="'+naverDir(s.lat,s.lng,'walk')+'">🚶 去景點</a>'
+    +(h?'<a class="back-hotel" target="_blank" rel="noopener" href="'+naverDir(h.lat,h.lng,'transit')+'">🏨 回飯店</a>':'')
+    +'</div>'
+    +'<div class="alt-nav">備用：<a target="_blank" rel="noopener" href="'+kakaoMap(s.nm,s.lat,s.lng)+'">KakaoMap</a>｜<a target="_blank" rel="noopener" href="'+gmapDir(s.lat,s.lng)+'">Google</a>｜<a target="_blank" rel="noopener" href="'+naverDir(s.lat,s.lng,'transit')+'">🚇 Naver 大眾運輸</a></div>'
+    +(vis?'<button class="spot-done done" onclick="event.stopPropagation()">✅ 已打卡</button>'
+         :'<button class="spot-done" onclick="manualCheck('+i+')">✅ 我到了</button>')
+    +'</div></div>';
+}
+function foldCardHTML(s,i,vis){
+  return '<div class="spot spot-fold'+(openFold.has(i)||vis?' open':'')+'" id="sp'+i+'">'
+    +'<div class="spot-head" onclick="toggleFold('+i+')"><div class="nm">'+(vis?'✅ ':'')+s.ic+' '+esc(s.nm)+'</div>'
+    +(s.ch?'<span class="opt-badge">🅾️ 選項</span>':'')
+    +'<span class="tag '+(s.dr==='drama'?'drama':'')+'">Day '+s.d+'</span><span class="fold-arrow">▾</span></div>'
+    +'<div class="spot-body">'
+    +'<div class="spot-desc">'+(s.dn?'📍 '+esc(s.dn)+'<br>':'')+esc(s.intro)+'<br>💡 '+esc(s.tips)
+    +(deepOf(s).h?'<span class="gd" title="來源：'+esc((deepOf(s).s||[]).join('；'))+'">📖 歷史</span><br>'+esc(deepOf(s).h)+'<br>':'')
+    +(deepOf(s).t?'<span class="gd" title="來源：'+esc((deepOf(s).s||[]).join('；'))+'">🧭 怎麼逛</span><br>'+esc(deepOf(s).t):'')+'</div>'
+    +asmHTML(s.nm)
+    +'<div class="spot-actions">'
+    +'<a class="main-go" target="_blank" rel="noopener" href="'+naverDir(s.lat,s.lng,'walk')+'">🚶 去景點</a>'
+    +(hotelForDay(s.d)?'<a class="back-hotel" target="_blank" rel="noopener" href="'+naverDir(hotelForDay(s.d).lat,hotelForDay(s.d).lng,'transit')+'">🏨 回飯店</a>':'')
+    +'</div>'
+    +'<div class="alt-nav">備用：<a target="_blank" rel="noopener" href="'+kakaoMap(s.nm,s.lat,s.lng)+'">KakaoMap</a>｜<a target="_blank" rel="noopener" href="'+gmapDir(s.lat,s.lng)+'">Google</a>｜<a target="_blank" rel="noopener" href="'+naverDir(s.lat,s.lng,'transit')+'">🚇 Naver 大眾運輸</a></div>'
+    +(vis?'<button class="spot-done done" onclick="event.stopPropagation()">✅ 已打卡</button>'
+         :'<button class="spot-done" onclick="manualCheck('+i+')">✅ 我到了</button>')
+    +'</div></div>';
+}
+function deepOf(s){return SPOT_DEEP[s.nm]||{};}
 function renderSpots(){
   const tabs=['全部',1,2,3,4,5];
-  document.getElementById('dayTabs').innerHTML=tabs.map(t=>`<span class="day-tab ${dayFilter===t?'on':''}" onclick="dayFilter='${t}';renderSpots();">${t==='全部'?'📋 全部行程':'Day '+t}</span>`).join('');
-  document.getElementById('spotList').innerHTML=SPOTS.filter(s=>dayFilter==='全部'||s.d===dayFilter).map(s=>{
-    const vis=visited[s.nm];
-    return `
-    <div class="spot ${vis?'open':''}" onclick="const d=this.querySelector('.spot-desc');d.style.display=d.style.display==='block'?'none':'block'">
-      <div class="spot-head">
-        <div class="nm">${vis?'✅ ':''}${s.ic} ${s.nm}</div>
-        <span class="tag ${s.dr&&s.dr==='drama'?'drama':''}">${s.dr}</span>
-      </div>
-      <div class="spot-desc">${s.dn?'📍 '+s.dn+'<br>':''}${s.intro}</div>
-      <div class="spot-actions">
-        <a target="_blank" class="a-nav" onclick="event.stopPropagation()" href="${gmapLink(s.lat,s.lng)}">🚶 步行導航</a>
-        <a target="_blank" class="a-nav" onclick="event.stopPropagation()" href="${gmapLink(s.lat,s.lng,'transit')}">🚇 大眾運輸</a>
-        <a target="_blank" class="a-map" onclick="event.stopPropagation()" href="https://www.google.com/maps/search/?api=1&query=${s.lat},${s.lng}">🗺️ 地圖開啟</a>
-      </div>
-    </div>`;}).join('');
+  $('dayTabs').innerHTML=tabs.map(t=>{
+    const on=dayFilter===t?' on':'';
+    const lbl=t==='全部'?'📋 全部行程':'Day '+t;
+    const dt=(t!=='全部'&&trip())?'<i class="dd">'+dayDate(t)+'</i>':'';
+    const arg=t==='全部'?"'全部'":t;
+    return '<button class="day-tab'+on+'" onclick="setDay('+arg+')">'+lbl+dt+'</button>';
+  }).join('');
+  const act=activeDay();
+  $('spotList').innerHTML=SPOTS.map((s,i)=>({s,i})).filter(o=>dayFilter==='全部'||o.s.d===dayFilter).map(o=>{
+    const s=o.s;const vis=visited[s.nm];const isToday=act&&s.d===act;
+    if(isToday||!act)return todayCardHTML(s,o.i,act,vis); // 無出發日＝總覽模式全部展開
+    return foldCardHTML(s,o.i,vis);
+  }).join('');
 }
-renderSpots();
+
+/* ============ 本晚住宿模組（V2.1：依 Day 顯示＋周邊包＋以領隊宣布為準） ============ */
+function nearLine(label,list){
+  if(!list||!list.length)return '';
+  return '<p class="nearby-line"><b>'+label+'</b>：'+list.map(x=>{
+    let p='';
+    if(x.w===0)p='（館內）';
+    else if(x.w)p='（'+x.w+' 分）';
+    else if(x.note)p='（'+esc(x.note)+'）';
+    return esc(x.n)+p+' <span class="why" title="'+esc(x.why||'')+'">ⓘ</span> <a data-naver="'+esc(x.n)+'">Naver ↗</a>';
+  }).join('・')+'</p>';
+}
+function hotelBlock(h,dayNum){
+  const dateTxt=dayNum?dayDate(dayNum)+'（'+dayWD(dayNum)+'）':'';
+  return '<h3 title="'+esc(h.srcL||'')+'">🏨 本晚住宿｜Day '+dayNum+'（'+dateTxt+'）</h3>'
+    +'<p><b>'+esc(h.nm)+'</b><br>'+esc(h.cls)+'<br>'+esc(h.addr)+'</p>'
+    +(h.feat?'<p>🛏️ '+esc(h.feat)+'</p>':'')
+    +'<p>🚇 交通：'+(h.metro.w?'<b>'+esc(h.metro.n)+'</b> 步行 '+h.metro.w+' 分'+(h.metro.d?'——'+esc(h.metro.d):''):'<b>'+esc(h.metro.n)+'</b>'+(h.metro.d?'——'+esc(h.metro.d):''))+'</p>'
+    +nearLine('🍜 必吃',h.food)
+    +nearLine('🛍️ 必逛',h.shop)
+    +(h.conv?'<p class="nearby-line"><b>🏪 便利店</b>：'+esc(h.conv.n)+'——'+esc(h.conv.d||'')+'</p>':'')
+    +'<p class="hotel-note">⚠️ 行程頁只列「或同級」，每晚以領隊宣布為準。</p>'
+    +'<p><a id="hotelNav" target="_blank" rel="noopener" href="'+naverDir(h.lat,h.lng,'walk')+'">🚶 Naver 步行導航</a>｜<a id="hotelKakao" target="_blank" rel="noopener" href="'+kakaoMap(h.nm,h.lat,h.lng)+'">🗺️ KakaoMap 開啟</a></p>';
+}
+function renderHotels(){
+  const t=trip(),act=activeDay();
+  const el=$('hotelCard');
+  if(!act){
+    el.innerHTML='<h3>🏨 住宿（先選出發日看「本晚」）</h3><p>・Day1 候選首位：<b>'+esc(HOTELS.sopra.nm)+'</b>（青羅）。</p><p>・Day2-4 候選首位：<b>'+esc(HOTELS.stella.nm)+'</b>（永宗島）。</p><p class="hotel-note">⚠️ 行程頁只列「或同級」，每晚以領隊宣布為準。</p>';
+    return;
+  }
+  if(act<=4){
+    el.innerHTML=hotelBlock(act===1?HOTELS.sopra:HOTELS.stella,act);
+  }else{
+    el.innerHTML='<h3>🏨 本晚住宿｜Day 5（'+(dayDate(5)?dayDate(5)+'（'+dayWD(5)+'）':'')+'）</h3><p>Day 5 為回程日，無本晚住宿——ZE781 清州 23:35 起飛→桃園 01:00+1 抵台；機場待返以領隊宣布為準。</p>';
+  }
+}
+function hotelGo(){
+  const act=activeDay();let h=hotelForDay(act);
+  if(!h)h=null;
+  if(h){window.open(naverDir(h.lat,h.lng,'walk'),'_blank');}
+}
+
+/* ============ 旅行救命列（V2.1：一鍵撥號） ============ */
+function renderSos(){
+  const act=activeDay();
+  let h=act?hotelForDay(act):HOTELS.sopra;
+  if(act===5)h=airportSpot()||HOTELS.sopra; // 回程日晚間在清州機場
+  const el=$('sosHotel');if(el&&h)el.href=naverDir(h.lat,h.lng,'walk');
+}
+
+/* ============ 初始＝啟動 ============ */
+function renderAll(){renderCommand();renderArrive();renderProgress();renderSpots();renderHotels();renderMapNote();}
+applyTheme();
+initStart();
+renderAll();
+document.addEventListener('DOMContentLoaded',function(){
+  /* Naver 搜尋跳轉（nearby CTA） */
+  document.addEventListener('click',function(e){
+    const a=e.target.closest&&e.target.closest('a[data-naver]');
+    if(a){e.preventDefault();window.open(naverSearch(a.getAttribute('data-naver')),'_blank');}
+  });
+});
 </script>
 </body>
 </html>
